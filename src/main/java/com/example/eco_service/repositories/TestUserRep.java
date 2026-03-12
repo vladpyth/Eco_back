@@ -3,13 +3,14 @@ package com.example.eco_service.repositories;
 import com.example.eco_service.entities.TestUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TestUserRep extends JpaRepository<TestUser, Long> {
+public interface TestUserRep extends JpaRepository<TestUser, Long>, RevisionRepository<TestUser, Long, Integer> {
 
     Optional<TestUser> findByUsername(String username);
 

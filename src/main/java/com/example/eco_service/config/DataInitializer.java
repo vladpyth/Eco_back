@@ -19,11 +19,11 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("Checking if database needs initialization...");
 
-        // Создаем тестовые данные только если таблицы пустые
+
         if (userRepository.count() == 0) {
             log.info("Initializing test data...");
 
-            // Создаем пользователя
+
             TestUser user = TestUser.builder()
                     .username("john_doe")
                     .email("john@example.com")

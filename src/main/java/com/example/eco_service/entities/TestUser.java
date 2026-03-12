@@ -6,11 +6,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import org.hibernate.envers.Audited;
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Audited
 @Table(name = "Testusers")
 public class TestUser {
     @Id
