@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @Schema(description = "Запрос на обновление пользователя")
 
-public class UpdateDataTestUserRequest {
+public class TestUpdateDataTestUserRequest {
     @Schema(description = "Имя пользователя", example = "john_updated")
     @Size(min = 3, max = 50, message = "Имя должно быть от 3 до 50 символов")
     private String username;

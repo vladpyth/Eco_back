@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Запрос для эхо-сервиса")
-public class EchoRequest {
+public class TestEchoRequest {
 
     @Schema(description = "Имя пользователя", example = "Анна")
     @Size(min = 2, max = 50, message = "Имя должно быть от 2 до 50 символов")

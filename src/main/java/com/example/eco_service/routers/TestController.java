@@ -1,14 +1,12 @@
 package com.example.eco_service.routers;
 
-import com.example.eco_service.dto.request.UpdateDataTestUserRequest;
+import com.example.eco_service.dto.request.TestUpdateDataTestUserRequest;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
-import com.example.eco_service.dto.request.EchoRequest;
+import com.example.eco_service.dto.request.TestEchoRequest;
 import com.example.eco_service.dto.response.EchoResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,9 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -42,7 +38,7 @@ public class TestController {
             @ApiResponse(responseCode = "200", description = "Данные получены"),
             @ApiResponse(responseCode = "400", description = "Неверный запрос")
     })
-    public EchoResponse echo(@Valid @RequestBody EchoRequest request) {
+    public EchoResponse echo(@Valid @RequestBody TestEchoRequest request) {
 
 
         return EchoResponse.builder()
@@ -75,7 +71,7 @@ public class TestController {
             @PathVariable Long id,
 
             @Parameter(description = "Данные для обновления", required = true)
-            @Valid @RequestBody UpdateDataTestUserRequest request) {
+            @Valid @RequestBody TestUpdateDataTestUserRequest request) {
 
 
 
