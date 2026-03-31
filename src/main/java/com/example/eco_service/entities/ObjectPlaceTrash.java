@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 @Data
@@ -48,7 +49,10 @@ public class ObjectPlaceTrash {
     @JoinColumn(name = "id_gruops_degree")
     private GruopsDegree id_gruops_degree ;
 
-    @OneToOne
+    @OneToMany(mappedBy = "objectPlaceTrash", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<NumberPhone> phones;
+
+    @ManyToOne
     @JoinColumn(name = "id_comments_of_place")
     private CommentsOfPlace id_comments_of_place ;
 
@@ -95,7 +99,10 @@ public class ObjectPlaceTrash {
     private float trash_square;
 
     @Column()
-    private String power; //полная хуйня пересмотреть просили разделить на две части
+    private String project_power; //полная хуйня пересмотреть просили разделить на две части
+
+    @Column()
+    private String facticheskay_power; //полная хуйня пересмотреть просили разделить на две части
 
     @Column()
     private String accomulated_trash;//полная хуйня пересмотреть

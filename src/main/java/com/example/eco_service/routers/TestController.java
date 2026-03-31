@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api1")
 @Tag(name = "Тестовый контроллер", description = "API для проверки работы сервера")
 public class TestController {
 

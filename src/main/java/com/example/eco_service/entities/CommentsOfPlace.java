@@ -13,7 +13,7 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 @Entity
 @Audited
-@Table(name = "GroupPlaceSave")
+@Table(name = "CommentsOfPlace")
 public class CommentsOfPlace {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

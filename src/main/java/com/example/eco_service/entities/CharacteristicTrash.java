@@ -30,7 +30,7 @@ public class CharacteristicTrash {
     @JoinColumn(name = "id_magazin_trash")
     private MagazinTrash id_magazin_trash;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_state")
     private PhysicalState id_state;
 
