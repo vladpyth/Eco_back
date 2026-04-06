@@ -33,19 +33,19 @@ public class ObjectPlaceTrash {
     @Column()
     private LocalDate date_register;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_сities")
     private Cities id_cities;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_group_place_save")
     private GroupPlaceSave id_group_place_save ;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_storage_scheme")
     private StorageScheme id_storage_scheme ;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_gruops_degree")
     private GruopsDegree id_gruops_degree ;
 
