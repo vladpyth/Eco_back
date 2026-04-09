@@ -75,12 +75,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // 1.2 Города
         List<Cities> cities = Arrays.asList(
-                Cities.builder().id_region(regions.get(0)).index("01001").district("г. Киев").build(),
-                Cities.builder().id_region(regions.get(0)).index("08132").district("г. Вишневое").build(),
-                Cities.builder().id_region(regions.get(1)).index("79000").district("г. Львов").build(),
-                Cities.builder().id_region(regions.get(2)).index("65000").district("г. Одесса").build(),
-                Cities.builder().id_region(regions.get(3)).index("49000").district("г. Днепр").build(),
-                Cities.builder().id_region(regions.get(4)).index("61000").district("г. Харьков").build()
+                Cities.builder().id_region(regions.get(0)).index("01001").district("Киевский").name_cities("Киев").build(),
+                Cities.builder().id_region(regions.get(0)).index("08132").district("Вишневский").name_cities("Вишня").build(),
+                Cities.builder().id_region(regions.get(1)).index("79000").district("Львовский").name_cities("Львов").build(),
+                Cities.builder().id_region(regions.get(2)).index("65000").district("Одесский").name_cities("Одесса").build(),
+                Cities.builder().id_region(regions.get(3)).index("49000").district("Днепрский").name_cities("Днепр").build(),
+                Cities.builder().id_region(regions.get(4)).index("61000").district("Харьковский").name_cities("Харьков").build()
         );
         cities = citiesRepository.saveAll(cities);
         log.info("Created {} cities", cities.size());

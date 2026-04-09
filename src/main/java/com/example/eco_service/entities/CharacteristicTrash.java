@@ -21,7 +21,7 @@ public class CharacteristicTrash {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_characteristic_trash;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_object_place_trash")
     private ObjectPlaceTrash id_object_place_trash;
 

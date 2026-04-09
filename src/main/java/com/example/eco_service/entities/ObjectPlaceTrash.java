@@ -34,26 +34,26 @@ public class ObjectPlaceTrash {
     private LocalDate date_register;
 
     @ManyToOne
-    @JoinColumn(name = "id_сities")
+    @JoinColumn(name = "id_сities",nullable = true)
     private Cities id_cities;
 
     @ManyToOne
-    @JoinColumn(name = "id_group_place_save")
+    @JoinColumn(name = "id_group_place_save",nullable = true)
     private GroupPlaceSave id_group_place_save ;
 
     @ManyToOne
-    @JoinColumn(name = "id_storage_scheme")
+    @JoinColumn(name = "id_storage_scheme",nullable = true)
     private StorageScheme id_storage_scheme ;
 
     @ManyToOne
-    @JoinColumn(name = "id_gruops_degree")
+    @JoinColumn(name = "id_gruops_degree",nullable = true)
     private GruopsDegree id_gruops_degree ;
 
     @OneToMany(mappedBy = "objectPlaceTrash", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<NumberPhone> phones;
 
     @ManyToOne
-    @JoinColumn(name = "id_comments_of_place")
+    @JoinColumn(name = "id_comments_of_place", nullable = true)
     private CommentsOfPlace id_comments_of_place ;
 
     @Column(nullable = false)

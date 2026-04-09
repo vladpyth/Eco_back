@@ -1,5 +1,7 @@
 package com.example.eco_service.services;
 
+import com.example.eco_service.dto.request.ObjectAroundBuildLinkRequest;
+import com.example.eco_service.dto.request.ObjectNatualSaveBuildLinkRequest;
 import com.example.eco_service.dto.request.ObjectPlaceTrashRequest;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
@@ -29,6 +31,10 @@ public class ObjectPlaceTrashService {
     private final InterfStorageScheme storageSchemeRepository;
     private final InterfGruopsDegree gruopsDegreeRepository;
     private final InterfCommentsOfPlace commentsOfPlaceRepository;
+    private final InterfAroundBuild aroundBuildRepository;
+    private final InterfNatualSaveBuilding natualSaveBuildingRepository;
+    private final InterfAroundBuildCount aroundBuildCountRepository;
+    private final InterfNatualSaveBuildCount natualSaveBuildCountRepository;
 
     // ==================== CREATE ====================
     public ObjectPlaceTrash createObjectPlaceTrash(ObjectPlaceTrashRequest request) {
@@ -62,6 +68,91 @@ public class ObjectPlaceTrashService {
                 .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + id));
     }
 
+    @Transactional(readOnly = true)
+    public List<AroundBuild> findAroundBuildsByObjectPlaceTrash(Long objectId) {
+        objectPlaceTrashRepository.findById(objectId)
+                .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + objectId));
+        return aroundBuildCountRepository.findAllByObjectPlaceId(objectId).stream()
+                .map(AroundBuildCount::getId_around_build)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NatualSaveBuilding> findNatualSaveBuildsByObjectPlaceTrash(Long objectId) {
+        objectPlaceTrashRepository.findById(objectId)
+                .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + objectId));
+        return natualSaveBuildCountRepository.findAllByObjectPlaceId(objectId).stream()
+                .map(NatualSaveBuildCount::getId_natual_save_build)
+                .toList();
+    }
+
+    public AroundBuild addAroundBuildToObjectPlaceTrash(Long objectId, ObjectAroundBuildLinkRequest request) {
+        ObjectPlaceTrash objectPlaceTrash = objectPlaceTrashRepository.findById(objectId)
+                .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + objectId));
+        AroundBuild aroundBuild;
+        if (request.getAroundBuildId() != null) {
+            aroundBuild = aroundBuildRepository.findById(request.getAroundBuildId())
+                    .orElseThrow(() -> new RuntimeException("AroundBuild not found with id: " + request.getAroundBuildId()));
+        } else {
+            String name = request.getName() == null ? "" : request.getName().trim();
+            if (name.isEmpty()) throw new RuntimeException("name is required");
+            aroundBuild = aroundBuildRepository.save(AroundBuild.builder().name(name).build());
+        }
+        boolean exists = aroundBuildCountRepository
+                .existsLink(
+                        objectId,
+                        aroundBuild.getId_around_build()
+                );
+        if (!exists) {
+            aroundBuildCountRepository.save(AroundBuildCount.builder()
+                    .id_object_place_trash(objectPlaceTrash)
+                    .id_around_build(aroundBuild)
+                    .build());
+        }
+        return aroundBuild;
+    }
+
+    public NatualSaveBuilding addNatualSaveBuildToObjectPlaceTrash(Long objectId, ObjectNatualSaveBuildLinkRequest request) {
+        ObjectPlaceTrash objectPlaceTrash = objectPlaceTrashRepository.findById(objectId)
+                .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + objectId));
+        NatualSaveBuilding natualSaveBuilding;
+        if (request.getNatualSaveBuildId() != null) {
+            natualSaveBuilding = natualSaveBuildingRepository.findById(request.getNatualSaveBuildId())
+                    .orElseThrow(() -> new RuntimeException("NatualSaveBuilding not found with id: " + request.getNatualSaveBuildId()));
+        } else {
+            String name = request.getName() == null ? "" : request.getName().trim();
+            if (name.isEmpty()) throw new RuntimeException("name is required");
+            natualSaveBuilding = natualSaveBuildingRepository.save(NatualSaveBuilding.builder().name(name).build());
+        }
+        boolean exists = natualSaveBuildCountRepository
+                .existsLink(
+                        objectId,
+                        natualSaveBuilding.getId_natual_save_build()
+                );
+        if (!exists) {
+            natualSaveBuildCountRepository.save(NatualSaveBuildCount.builder()
+                    .id_object_place_trash(objectPlaceTrash)
+                    .id_natual_save_build(natualSaveBuilding)
+                    .build());
+        }
+        return natualSaveBuilding;
+    }
+
+    public void deleteAroundBuildFromObjectPlaceTrash(Long objectId, Long aroundBuildId) {
+        aroundBuildCountRepository.deleteLink(
+                objectId,
+                aroundBuildId
+        );
+    }
+
+    public void deleteNatualSaveBuildFromObjectPlaceTrash(Long objectId, Long natualSaveBuildId) {
+        natualSaveBuildCountRepository
+                .deleteLink(
+                        objectId,
+                        natualSaveBuildId
+                );
+    }
+
     // ==================== UPDATE (только основные поля) ====================
     public ObjectPlaceTrash updateObjectPlaceTrash(Long id, ObjectPlaceTrashRequest request) {
         log.info("Updating ObjectPlaceTrash with id: {}", id);
@@ -82,35 +173,55 @@ public class ObjectPlaceTrashService {
             entity.setDate_register(request.getDateRegister());
         }
 
-        // Обновляем связанные ID с проверкой существования
+        // Связи: фронт шлёт -1 для сброса (Long null в JSON не отличить от «поле не передано»)
         if (request.getCitiesId() != null) {
-            Cities cities = citiesRepository.findById(request.getCitiesId())
-                    .orElseThrow(() -> new RuntimeException("Cities not found with id: " + request.getCitiesId()));
-            entity.setId_cities(cities);
+            if (request.getCitiesId() < 0) {
+                entity.setId_cities(null);
+            } else {
+                Cities cities = citiesRepository.findById(request.getCitiesId())
+                        .orElseThrow(() -> new RuntimeException("Cities not found with id: " + request.getCitiesId()));
+                entity.setId_cities(cities);
+            }
         }
 
         if (request.getGroupPlaceSaveId() != null) {
-            GroupPlaceSave groupPlaceSave = groupPlaceSaveRepository.findById(request.getGroupPlaceSaveId())
-                    .orElseThrow(() -> new RuntimeException("GroupPlaceSave not found with id: " + request.getGroupPlaceSaveId()));
-            entity.setId_group_place_save(groupPlaceSave);
+            if (request.getGroupPlaceSaveId() < 0) {
+                entity.setId_group_place_save(null);
+            } else {
+                GroupPlaceSave groupPlaceSave = groupPlaceSaveRepository.findById(request.getGroupPlaceSaveId())
+                        .orElseThrow(() -> new RuntimeException("GroupPlaceSave not found with id: " + request.getGroupPlaceSaveId()));
+                entity.setId_group_place_save(groupPlaceSave);
+            }
         }
 
         if (request.getStorageSchemeId() != null) {
-            StorageScheme storageScheme = storageSchemeRepository.findById(request.getStorageSchemeId())
-                    .orElseThrow(() -> new RuntimeException("StorageScheme not found with id: " + request.getStorageSchemeId()));
-            entity.setId_storage_scheme(storageScheme);
+            if (request.getStorageSchemeId() < 0) {
+                entity.setId_storage_scheme(null);
+            } else {
+                StorageScheme storageScheme = storageSchemeRepository.findById(request.getStorageSchemeId())
+                        .orElseThrow(() -> new RuntimeException("StorageScheme not found with id: " + request.getStorageSchemeId()));
+                entity.setId_storage_scheme(storageScheme);
+            }
         }
 
         if (request.getGruopsDegreeId() != null) {
-            GruopsDegree gruopsDegree = gruopsDegreeRepository.findById(request.getGruopsDegreeId())
-                    .orElseThrow(() -> new RuntimeException("GruopsDegree not found with id: " + request.getGruopsDegreeId()));
-            entity.setId_gruops_degree(gruopsDegree);
+            if (request.getGruopsDegreeId() < 0) {
+                entity.setId_gruops_degree(null);
+            } else {
+                GruopsDegree gruopsDegree = gruopsDegreeRepository.findById(request.getGruopsDegreeId())
+                        .orElseThrow(() -> new RuntimeException("GruopsDegree not found with id: " + request.getGruopsDegreeId()));
+                entity.setId_gruops_degree(gruopsDegree);
+            }
         }
 
         if (request.getCommentsOfPlaceId() != null) {
-            CommentsOfPlace commentsOfPlace = commentsOfPlaceRepository.findById(request.getCommentsOfPlaceId())
-                    .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + request.getCommentsOfPlaceId()));
-            entity.setId_comments_of_place(commentsOfPlace);
+            if (request.getCommentsOfPlaceId() < 0) {
+                entity.setId_comments_of_place(null);
+            } else {
+                CommentsOfPlace commentsOfPlace = commentsOfPlaceRepository.findById(request.getCommentsOfPlaceId())
+                        .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + request.getCommentsOfPlaceId()));
+                entity.setId_comments_of_place(commentsOfPlace);
+            }
         }
 
         // Обновляем остальные поля

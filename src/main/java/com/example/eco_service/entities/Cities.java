@@ -30,4 +30,7 @@ public class Cities {
     @Column(nullable = false,  length = 50)
     private String district;
 
+    @Column(nullable = false,  length = 50)
+    private String name_cities;
+
 }

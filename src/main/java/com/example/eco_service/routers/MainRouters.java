@@ -715,6 +715,56 @@ public class MainRouters {
         return ResponseEntity.ok(entity);
     }
 
+    @GetMapping("object-place-trash/{id}/around-builds")
+    @Operation(summary = "Получить привязанные природоохранные сооружения (AroundBuild)")
+    public ResponseEntity<List<AroundBuild>> findAroundBuildsByObjectPlaceTrash(@PathVariable Long id) {
+        List<AroundBuild> entities = objectPlaceTrashService.findAroundBuildsByObjectPlaceTrash(id);
+        return ResponseEntity.ok(entities);
+    }
+
+    @PostMapping("object-place-trash/{id}/around-builds")
+    @Operation(summary = "Добавить/привязать природоохранное сооружение к объекту")
+    public ResponseEntity<AroundBuild> addAroundBuildToObjectPlaceTrash(
+            @PathVariable Long id,
+            @Valid @RequestBody ObjectAroundBuildLinkRequest request) {
+        AroundBuild entity = objectPlaceTrashService.addAroundBuildToObjectPlaceTrash(id, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entity);
+    }
+
+    @DeleteMapping("object-place-trash/{id}/around-builds/{aroundBuildId}")
+    @Operation(summary = "Удалить привязку природоохранного сооружения от объекта")
+    public ResponseEntity<Void> deleteAroundBuildFromObjectPlaceTrash(
+            @PathVariable Long id,
+            @PathVariable Long aroundBuildId) {
+        objectPlaceTrashService.deleteAroundBuildFromObjectPlaceTrash(id, aroundBuildId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("object-place-trash/{id}/natual-save-buildings")
+    @Operation(summary = "Получить привязанные населенные пункты (NatualSaveBuilding)")
+    public ResponseEntity<List<NatualSaveBuilding>> findNatualSaveBuildsByObjectPlaceTrash(@PathVariable Long id) {
+        List<NatualSaveBuilding> entities = objectPlaceTrashService.findNatualSaveBuildsByObjectPlaceTrash(id);
+        return ResponseEntity.ok(entities);
+    }
+
+    @PostMapping("object-place-trash/{id}/natual-save-buildings")
+    @Operation(summary = "Добавить/привязать населенный пункт к объекту")
+    public ResponseEntity<NatualSaveBuilding> addNatualSaveBuildToObjectPlaceTrash(
+            @PathVariable Long id,
+            @Valid @RequestBody ObjectNatualSaveBuildLinkRequest request) {
+        NatualSaveBuilding entity = objectPlaceTrashService.addNatualSaveBuildToObjectPlaceTrash(id, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entity);
+    }
+
+    @DeleteMapping("object-place-trash/{id}/natual-save-buildings/{natualSaveBuildId}")
+    @Operation(summary = "Удалить привязку населенного пункта от объекта")
+    public ResponseEntity<Void> deleteNatualSaveBuildFromObjectPlaceTrash(
+            @PathVariable Long id,
+            @PathVariable Long natualSaveBuildId) {
+        objectPlaceTrashService.deleteNatualSaveBuildFromObjectPlaceTrash(id, natualSaveBuildId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("object-place-trash/{id}")
     @Operation(summary = "Обновить запись (только основные поля)")
     public ResponseEntity<ObjectPlaceTrash> updateObjectPlaceTrash(
