@@ -21,7 +21,7 @@ public class LevelTrash {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_level_trash;
 
-    @Column(nullable = false,unique = true,  length = 150)
+    @Column(nullable = false, unique = true,  length = 150)
     private String name_level_trash;
 
 }

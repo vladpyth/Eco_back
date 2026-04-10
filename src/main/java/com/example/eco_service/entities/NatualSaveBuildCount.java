@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 @Data
 @Builder
 @NoArgsConstructor
@@ -26,6 +26,7 @@ public class NatualSaveBuildCount {
 
     @ManyToOne
     @JoinColumn(name = "id_object_place_trash")
+    @JsonIgnore
     private ObjectPlaceTrash id_object_place_trash;
 
 }

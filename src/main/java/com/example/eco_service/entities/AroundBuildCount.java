@@ -1,5 +1,6 @@
 package com.example.eco_service.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class AroundBuildCount {
 
     @ManyToOne
     @JoinColumn(name = "id_object_place_trash")
+    @JsonIgnore
     private ObjectPlaceTrash id_object_place_trash;
 
 }

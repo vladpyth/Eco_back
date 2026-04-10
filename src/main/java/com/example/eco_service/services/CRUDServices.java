@@ -555,8 +555,11 @@ public class CRUDServices {
     public MagazinTrash createMagazinTrash(MagazinTrashRequest request) {
         log.info("Creating MagazinTrash with code: {}", request.getCodeTrash());
 
-        ClassDanger classDanger = classDangerRepository.findById(request.getIdClassDanger())
-                .orElseThrow(() -> new RuntimeException("ClassDanger not found with id: " + request.getIdClassDanger()));
+        ClassDanger classDanger = null;
+        if (request.getIdClassDanger() != null && request.getIdClassDanger() > 0) {
+            classDanger = classDangerRepository.findById(request.getIdClassDanger())
+                    .orElseThrow(() -> new RuntimeException("ClassDanger not found with id: " + request.getIdClassDanger()));
+        }
 
         TypeTrash1 typeTrash = typeTrash1Repository.findById(request.getIdTypeTrash())
                 .orElseThrow(() -> new RuntimeException("TypeTrash1 not found with id: " + request.getIdTypeTrash()));
@@ -602,10 +605,12 @@ public class CRUDServices {
         MagazinTrash entity = magazinTrashRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("MagazinTrash not found with id: " + id));
 
-        if (request.getIdClassDanger() != null) {
+        if (request.getIdClassDanger() != null && request.getIdClassDanger() > 0) {
             ClassDanger classDanger = classDangerRepository.findById(request.getIdClassDanger())
                     .orElseThrow(() -> new RuntimeException("ClassDanger not found with id: " + request.getIdClassDanger()));
             entity.setId_class_danger(classDanger);
+        } else {
+            entity.setId_class_danger(null);
         }
 
         if (request.getIdTypeTrash() != null) {

@@ -26,7 +26,7 @@ public class CharacteristicTrash {
     private ObjectPlaceTrash id_object_place_trash;
 
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "id_magazin_trash")
     private MagazinTrash id_magazin_trash;
 

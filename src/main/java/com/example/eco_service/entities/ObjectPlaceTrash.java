@@ -1,6 +1,7 @@
 package com.example.eco_service.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -51,6 +53,18 @@ public class ObjectPlaceTrash {
 
     @OneToMany(mappedBy = "objectPlaceTrash", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<NumberPhone> phones;
+
+    @OneToMany(mappedBy = "id_object_place_trash",
+            cascade = CascadeType.ALL,        // или CascadeType.REMOVE
+            orphanRemoval = true)
+    @JsonIgnore
+    private List<AroundBuildCount> aroundBuildCounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "id_object_place_trash",
+            cascade = CascadeType.ALL,        // или CascadeType.REMOVE
+            orphanRemoval = true)
+    @JsonIgnore
+    private List<NatualSaveBuildCount> natualSaveBuildCount = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "id_comments_of_place", nullable = true)
