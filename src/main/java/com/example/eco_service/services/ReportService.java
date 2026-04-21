@@ -106,6 +106,12 @@ public class ReportService {
                 objectDetail.put("objectLocation", object.getPlace_obj());
                 objectDetail.put("ownerName", object.getName_own());
                 objectDetail.put("companyLocated", object.getCompany_located());
+                objectDetail.put(
+                        "groupPlaceName",
+                        object.getId_group_place_save() != null
+                                ? object.getId_group_place_save().getName_group()
+                                : null
+                );
                 objectDetail.put("status", object.getStatus() ? "Активен" : "Неактивен");
                 objectDetail.put("registrationNumber", object.getId_registration());
                 objectDetail.put("startUse", object.getStart_use());

@@ -14,5 +14,5 @@ public class GroupPlaceSaveRequest {
 
     @Schema(description = "Название региона", example = "Северо-Запад")
     @NotBlank(message = "nameRegion обязателен")
-    private String nameRegion;
+    private String nameGroup;
 }

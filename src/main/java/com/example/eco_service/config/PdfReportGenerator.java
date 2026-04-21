@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -61,6 +63,7 @@ public class PdfReportGenerator {
             for (Map<String, Object> region : summaryData) {
                 String regionName = (String) region.get("regionName");
                 List<Map<String, Object>> objects = (List<Map<String, Object>>) region.get("objects");
+                String groupPlaceName = extractGroupPlaceName(objects);
 
                 if (yPosition < 120) {
                     contentStream.close();
@@ -78,6 +81,8 @@ public class PdfReportGenerator {
 
                 // Сначала область (по центру)
                 writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
+                yPosition -= HEADER_GAP;
+                writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
                 yPosition -= HEADER_GAP;
 
                 // Затем заголовки столбцов
@@ -105,6 +110,8 @@ public class PdfReportGenerator {
 
                             // На новых страницах без общего заголовка; повторяем только секцию
                             writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
+                            yPosition -= HEADER_GAP;
+                            writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
                             yPosition -= HEADER_GAP;
                             int nh1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
                             int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
@@ -217,5 +224,18 @@ public class PdfReportGenerator {
         if (line.length() > 0) out.add(line.toString());
         if (out.isEmpty()) out.add("—");
         return out;
+    }
+
+    private String extractGroupPlaceName(List<Map<String, Object>> objects) {
+        if (objects == null || objects.isEmpty()) return "—";
+        Set<String> uniq = new LinkedHashSet<>();
+        for (Map<String, Object> obj : objects) {
+            Object raw = obj.get("groupPlaceName");
+            if (raw == null) continue;
+            String v = String.valueOf(raw).trim();
+            if (!v.isEmpty() && !"null".equalsIgnoreCase(v)) uniq.add(v);
+        }
+        if (uniq.isEmpty()) return "—";
+        return String.join(", ", uniq);
     }
 }

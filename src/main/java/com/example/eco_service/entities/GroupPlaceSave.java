@@ -20,5 +20,5 @@ public class GroupPlaceSave {
     private Long id_group_place_save;
 
     @Column(nullable = false, unique = true)
-    private String name_region;
+    private String name_group;
 }

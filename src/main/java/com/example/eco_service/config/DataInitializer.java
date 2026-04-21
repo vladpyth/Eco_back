@@ -149,11 +149,11 @@ public class DataInitializer implements CommandLineRunner {
 
         // 1.9 Группы мест сохранения
         List<GroupPlaceSave> groupPlaceSaves = Arrays.asList(
-                GroupPlaceSave.builder().name_region("Центральный").build(),
-                GroupPlaceSave.builder().name_region("Северный").build(),
-                GroupPlaceSave.builder().name_region("Южный").build(),
-                GroupPlaceSave.builder().name_region("Западный").build(),
-                GroupPlaceSave.builder().name_region("Восточный").build()
+                GroupPlaceSave.builder().name_group("Хранение на территории предприятия").build(),
+                GroupPlaceSave.builder().name_group("Полигоны твердых коммунальных отходов").build(),
+                GroupPlaceSave.builder().name_group("Места хранения полихлорированных бифенилов").build(),
+                GroupPlaceSave.builder().name_group("Мини-полигоны").build(),
+                GroupPlaceSave.builder().name_group("Объекты хранения отходов очистные сооружения, иловые площадки и др.").build()
         );
         groupPlaceSaves = groupPlaceSaveRepository.saveAll(groupPlaceSaves);
         log.info("Created {} place groups", groupPlaceSaves.size());

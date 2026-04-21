@@ -367,10 +367,10 @@ public class CRUDServices {
 
 
     public GroupPlaceSave createGroupPlaceSave(GroupPlaceSaveRequest request) {
-        log.info("Creating GroupPlaceSave with name: {}", request.getNameRegion());
+        log.info("Creating GroupPlaceSave with name: {}", request.getNameGroup());
 
         GroupPlaceSave entity = GroupPlaceSave.builder()
-                .name_region(request.getNameRegion())
+                .name_group(request.getNameGroup())
                 .build();
 
         return groupPlaceSaveRepository.save(entity);
@@ -395,8 +395,8 @@ public class CRUDServices {
         GroupPlaceSave entity = groupPlaceSaveRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("GroupPlaceSave not found with id: " + id));
 
-        if (request.getNameRegion() != null) {
-            entity.setName_region(request.getNameRegion());
+        if (request.getNameGroup() != null) {
+            entity.setName_group(request.getNameGroup());
         }
 
         return groupPlaceSaveRepository.save(entity);
