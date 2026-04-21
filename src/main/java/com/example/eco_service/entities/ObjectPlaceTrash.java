@@ -66,10 +66,6 @@ public class ObjectPlaceTrash {
     @JsonIgnore
     private List<NatualSaveBuildCount> natualSaveBuildCount = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "id_comments_of_place", nullable = true)
-    private CommentsOfPlace id_comments_of_place ;
-
     @Column(nullable = false)
     private String name_obj;
 

@@ -27,4 +27,9 @@ public class CitiesRequest {
     @NotBlank(message = "Район обязателен")
     @Size(max = 50, message = "Максимум 50 символов")
     private String district;
+
+    @Schema(description = "name_cities", example = "Центральный")
+
+    @Size(max = 50, message = "Максимум 50 символов")
+    private String name_cities;
 }

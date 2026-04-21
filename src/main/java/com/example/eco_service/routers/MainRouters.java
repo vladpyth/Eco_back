@@ -228,42 +228,7 @@ public class MainRouters {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("comments-of-place")
-    @Operation(summary = "Создать новый комментарий")
-    public ResponseEntity<CommentsOfPlace> createCommentsOfPlace(@Valid @RequestBody CommentsOfPlaceRequest request) {
-        CommentsOfPlace entity = commentsOfPlaceService.createCommentsOfPlace(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(entity);
-    }
 
-    @GetMapping("comments-of-place")
-    @Operation(summary = "Получить все комментарии")
-    public ResponseEntity<List<CommentsOfPlace>> findAllCommentsOfPlace() {
-        List<CommentsOfPlace> entities = commentsOfPlaceService.findAllCommentsOfPlace();
-        return ResponseEntity.ok(entities);
-    }
-
-    @GetMapping("comments-of-place/{id}")
-    @Operation(summary = "Получить комментарий по ID")
-    public ResponseEntity<CommentsOfPlace> findByIdCommentsOfPlace(@PathVariable Long id) {
-        CommentsOfPlace entity = commentsOfPlaceService.findByIdCommentsOfPlace(id);
-        return ResponseEntity.ok(entity);
-    }
-
-    @PutMapping("comments-of-place/{id}")
-    @Operation(summary = "Обновить комментарий")
-    public ResponseEntity<CommentsOfPlace> updateCommentsOfPlace(
-            @PathVariable Long id,
-            @Valid @RequestBody CommentsOfPlaceRequest request) {
-        CommentsOfPlace entity = commentsOfPlaceService.updateCommentsOfPlace(id, request);
-        return ResponseEntity.ok(entity);
-    }
-
-    @DeleteMapping("comments-of-place/{id}")
-    @Operation(summary = "Удалить комментарий")
-    public ResponseEntity<Void> deleteCommentsOfPlace(@PathVariable Long id) {
-        commentsOfPlaceService.deleteCommentsOfPlace(id);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("group-place-save")
     @Operation(summary = "Создать новую запись")

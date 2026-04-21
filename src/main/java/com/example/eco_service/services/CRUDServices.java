@@ -27,7 +27,6 @@ public class CRUDServices {
     private final InterfRegion regionRepository;
     private final InterfClassDanger classDangerRepository;
     private final InterfCleanerBuilds cleanerBuildsRepository;
-    private final InterfCommentsOfPlace commentsOfPlaceRepository;
     private final InterfGroupPlaceSave groupPlaceSaveRepository;
     private final InterfGruopsDegree gruopsDegreeRepository;
     private final InterfLevelTrash levelTrashRepository;
@@ -185,6 +184,7 @@ public class CRUDServices {
                 .id_region(region)
                 .index(request.getIndex())
                 .district(request.getDistrict())
+                .name_cities(request.getName_cities())
                 .build();
 
         return cities.save(entity);
@@ -364,51 +364,7 @@ public class CRUDServices {
         cleanerBuildsRepository.deleteById(id);
     }
 
-    public CommentsOfPlace createCommentsOfPlace(CommentsOfPlaceRequest request) {
-        log.info("Creating CommentsOfPlace");
 
-        CommentsOfPlace entity = CommentsOfPlace.builder()
-                .comments(request.getComments())
-                .build();
-
-        return commentsOfPlaceRepository.save(entity);
-    }
-
-    @Transactional(readOnly = true)
-    public List<CommentsOfPlace> findAllCommentsOfPlace() {
-        log.info("Fetching all CommentsOfPlace");
-        return commentsOfPlaceRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public CommentsOfPlace findByIdCommentsOfPlace(Long id) {
-        log.info("Fetching CommentsOfPlace by id: {}", id);
-        return commentsOfPlaceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + id));
-    }
-
-    public CommentsOfPlace updateCommentsOfPlace(Long id, CommentsOfPlaceRequest request) {
-        log.info("Updating CommentsOfPlace with id: {}", id);
-
-        CommentsOfPlace entity = commentsOfPlaceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + id));
-
-        if (request.getComments() != null) {
-            entity.setComments(request.getComments());
-        }
-
-        return commentsOfPlaceRepository.save(entity);
-    }
-
-    public void deleteCommentsOfPlace(Long id) {
-        log.info("Deleting CommentsOfPlace with id: {}", id);
-
-        if (!commentsOfPlaceRepository.existsById(id)) {
-            throw new RuntimeException("CommentsOfPlace not found with id: " + id);
-        }
-
-        commentsOfPlaceRepository.deleteById(id);
-    }
 
     public GroupPlaceSave createGroupPlaceSave(GroupPlaceSaveRequest request) {
         log.info("Creating GroupPlaceSave with name: {}", request.getNameRegion());
@@ -577,10 +533,9 @@ public class CRUDServices {
                 .id_mame_group(nameGroup)
                 .code_trash(request.getCodeTrash())
                 .name_trash(request.getNameTrash())
-                .level1(request.getLevel1())
+                .block1(request.getBlock1())
                 .group2(request.getGroup2())
-                .level3(request.getLevel3())
-                .level4(request.getLevel4())
+                .group3(request.getGroup3())
                 .build();
 
         return magazinTrashRepository.save(entity);
@@ -639,21 +594,19 @@ public class CRUDServices {
             entity.setName_trash(request.getNameTrash());
         }
 
-        if (request.getLevel1() != null) {
-            entity.setLevel1(request.getLevel1());
+        if (request.getBlock1() != null) {
+            entity.setBlock1(request.getBlock1());
         }
 
         if (request.getGroup2() != null) {
             entity.setGroup2(request.getGroup2());
         }
 
-        if (request.getLevel3() != null) {
-            entity.setLevel3(request.getLevel3());
+        if (request.getGroup3() != null) {
+            entity.setGroup3(request.getGroup3());
         }
 
-        if (request.getLevel4() != null) {
-            entity.setLevel4(request.getLevel4());
-        }
+
 
         return magazinTrashRepository.save(entity);
     }

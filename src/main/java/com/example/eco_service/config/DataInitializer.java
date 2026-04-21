@@ -35,7 +35,6 @@ public class DataInitializer implements CommandLineRunner {
     private final InterfStorageScheme storageSchemeRepository;
     private final InterfGroupPlaceSave groupPlaceSaveRepository;
     private final InterfGruopsDegree gruopsDegreeRepository;
-    private final InterfCommentsOfPlace commentsOfPlaceRepository;
     private final InterfAroundBuild aroundBuildRepository;
     private final InterfNatualSaveBuilding natualSaveBuildingRepository;
     private final InterfMagazinTrash magazinTrashRepository;
@@ -203,10 +202,9 @@ public class DataInitializer implements CommandLineRunner {
                         .id_mame_group(nameGroups.get(0))
                         .code_trash("010101")
                         .name_trash("Органические отходы")
-                        .level1(1)
+                        .block1(1)
                         .group2(1)
-                        .level3(1)
-                        .level4("A")
+                        .group3(1)
                         .build(),
                 MagazinTrash.builder()
                         .id_class_danger(classDangers.get(2))
@@ -215,10 +213,9 @@ public class DataInitializer implements CommandLineRunner {
                         .id_mame_group(nameGroups.get(2))
                         .code_trash("020202")
                         .name_trash("Пластиковые отходы")
-                        .level1(2)
+                        .block1(2)
                         .group2(2)
-                        .level3(3)
-                        .level4("B")
+                        .group3(3)
                         .build(),
                 MagazinTrash.builder()
                         .id_class_danger(classDangers.get(4))
@@ -227,10 +224,9 @@ public class DataInitializer implements CommandLineRunner {
                         .id_mame_group(nameGroups.get(3))
                         .code_trash("030303")
                         .name_trash("Металлолом")
-                        .level1(3)
+                        .block1(3)
                         .group2(3)
-                        .level3(5)
-                        .level4("C")
+                        .group3(5)
                         .build()
         );
         magazinTrashes = magazinTrashRepository.saveAll(magazinTrashes);
@@ -262,23 +258,7 @@ public class DataInitializer implements CommandLineRunner {
         userRepository.saveAll(Arrays.asList(user1, user2));
         log.info("Created test users");
 
-        // 2.3 Комментарии - создаем отдельно для каждого объекта (чтобы не нарушать уникальность)
-        CommentsOfPlace comment1 = CommentsOfPlace.builder()
-                .comments("Объект работает в штатном режиме, соответствует экологическим нормам")
-                .build();
 
-        CommentsOfPlace comment2 = CommentsOfPlace.builder()
-                .comments("Станция сортировки функционирует стабильно, требуется модернизация оборудования")
-                .build();
-
-        CommentsOfPlace comment3 = CommentsOfPlace.builder()
-                .comments("Полигон закрыт, ведутся работы по рекультивации территории")
-                .build();
-
-        comment1 = commentsOfPlaceRepository.save(comment1);
-        comment2 = commentsOfPlaceRepository.save(comment2);
-        comment3 = commentsOfPlaceRepository.save(comment3);
-        log.info("Created {} comments for objects", 3);
 
         // 2.4 Основные объекты размещения отходов (3 объекта для разнообразия)
         List<ObjectPlaceTrash> objectPlaceTrashes = Arrays.asList(
@@ -291,7 +271,6 @@ public class DataInitializer implements CommandLineRunner {
                         .id_group_place_save(groupPlaceSaves.get(0))
                         .id_storage_scheme(storageSchemes.get(0))
                         .id_gruops_degree(gruopsDegrees.get(0))
-                        .id_comments_of_place(comment1)
                         .name_obj("Киевский полигон ТБО")
                         .name_own("Киевская городская администрация")
                         .start_use(2015)
@@ -326,7 +305,6 @@ public class DataInitializer implements CommandLineRunner {
                         .id_group_place_save(groupPlaceSaves.get(3))
                         .id_storage_scheme(storageSchemes.get(3))
                         .id_gruops_degree(gruopsDegrees.get(1))
-                        .id_comments_of_place(comment2)
                         .name_obj("Львовская сортировочная станция")
                         .name_own("Львовский горсовет")
                         .start_use(2018)
@@ -361,7 +339,6 @@ public class DataInitializer implements CommandLineRunner {
                         .id_group_place_save(groupPlaceSaves.get(2))
                         .id_storage_scheme(storageSchemes.get(1))
                         .id_gruops_degree(gruopsDegrees.get(2))
-                        .id_comments_of_place(comment3)
                         .name_obj("Одесский полигон ТБО")
                         .name_own("Одесская областная администрация")
                         .start_use(2005)

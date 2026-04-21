@@ -39,19 +39,17 @@ public class MagazinTrashRequest {
     @Size(max = 50, message = "Максимум 50 символов")
     private String nameTrash;
 
-    @Schema(description = "Уровень 1", example = "1")
-    @NotNull(message = "level1 обязателен")
-    private Integer level1;
+    @Schema(description = "\"block 1", example = "1")
+    @NotNull(message = "block1 обязателен")
+    private Integer block1;
 
     @Schema(description = "Группа 2", example = "2")
     @NotNull(message = "group2 обязателен")
     private Integer group2;
 
-    @Schema(description = "Уровень 3", example = "3")
-    @NotNull(message = "level3 обязателен")
-    private Integer level3;
+    @Schema(description = "group3", example = "3")
+    @NotNull(message = "group3 обязателен")
+    private Integer group3;
 
-    @Schema(description = "Уровень 4", example = "IV")
-    @NotBlank(message = "level4 обязателен")
-    private String level4;
+
 }

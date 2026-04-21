@@ -43,8 +43,6 @@ public class ObjectPlaceTrashRequest {
     @Schema(description = "ID группы степени", example = "1")
     private Long gruopsDegreeId;
 
-    @Schema(description = "ID комментариев", example = "1")
-    private Long commentsOfPlaceId;
 
     @Schema(description = "Название объекта", example = "Полигон ТБО")
     @NotBlank(message = "nameObj обязателен")

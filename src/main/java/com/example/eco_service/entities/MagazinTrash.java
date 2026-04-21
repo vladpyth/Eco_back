@@ -43,14 +43,13 @@ public class MagazinTrash {
     private String name_trash;
 
     @Column(nullable = false)
-    private int level1;
+    private int block1;
 
     @Column(nullable = false)
     private int group2;
 
     @Column(nullable = false)
-    private int level3;
+    private int group3;
 
-    @Column(nullable = false)
-    private String level4;
+
 }

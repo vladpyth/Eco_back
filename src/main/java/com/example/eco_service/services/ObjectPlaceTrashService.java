@@ -30,7 +30,6 @@ public class ObjectPlaceTrashService {
     private final InterfGroupPlaceSave groupPlaceSaveRepository;
     private final InterfStorageScheme storageSchemeRepository;
     private final InterfGruopsDegree gruopsDegreeRepository;
-    private final InterfCommentsOfPlace commentsOfPlaceRepository;
     private final InterfAroundBuild aroundBuildRepository;
     private final InterfNatualSaveBuilding natualSaveBuildingRepository;
     private final InterfAroundBuildCount aroundBuildCountRepository;
@@ -214,15 +213,7 @@ public class ObjectPlaceTrashService {
             }
         }
 
-        if (request.getCommentsOfPlaceId() != null) {
-            if (request.getCommentsOfPlaceId() < 0) {
-                entity.setId_comments_of_place(null);
-            } else {
-                CommentsOfPlace commentsOfPlace = commentsOfPlaceRepository.findById(request.getCommentsOfPlaceId())
-                        .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + request.getCommentsOfPlaceId()));
-                entity.setId_comments_of_place(commentsOfPlace);
-            }
-        }
+
 
         // Обновляем остальные поля
         if (request.getNameObj() != null) {
@@ -362,11 +353,7 @@ public class ObjectPlaceTrashService {
             entity.setId_gruops_degree(gruopsDegree);
         }
 
-        if (req.getCommentsOfPlaceId() != null) {
-            CommentsOfPlace commentsOfPlace = commentsOfPlaceRepository.findById(req.getCommentsOfPlaceId())
-                    .orElseThrow(() -> new RuntimeException("CommentsOfPlace not found with id: " + req.getCommentsOfPlaceId()));
-            entity.setId_comments_of_place(commentsOfPlace);
-        }
+
 
         entity.setName_obj(req.getNameObj());
         entity.setName_own(req.getNameOwn());
