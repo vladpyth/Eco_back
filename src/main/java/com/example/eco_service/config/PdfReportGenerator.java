@@ -48,6 +48,7 @@ public class PdfReportGenerator {
             float col2 = cols[1];
             float col3 = cols[2];
             float col4 = cols[3];
+            float col5 = cols[4];
             float colWidth = columnWidth(page);
 
             // Заголовок только на первой странице (по центру)
@@ -76,6 +77,7 @@ public class PdfReportGenerator {
                     col2 = cols[1];
                     col3 = cols[2];
                     col4 = cols[3];
+                    col5 = cols[4];
                     colWidth = columnWidth(page);
                 }
 
@@ -90,7 +92,8 @@ public class PdfReportGenerator {
                 int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
                 int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Наименование собственника");
                 int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Юридический адрес");
-                int headerLines = Math.max(Math.max(h1, h2), Math.max(h3, h4));
+                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Телефоны");
+                int headerLines = Math.max(Math.max(h1, h2), Math.max(Math.max(h3, h4), h5));
                 yPosition -= (ROW_HEIGHT * headerLines) + 2;
 
                 if (objects != null && !objects.isEmpty()) {
@@ -106,6 +109,7 @@ public class PdfReportGenerator {
                             col2 = cols[1];
                             col3 = cols[2];
                             col4 = cols[3];
+                            col5 = cols[4];
                             colWidth = columnWidth(page);
 
                             // На новых страницах без общего заголовка; повторяем только секцию
@@ -117,7 +121,8 @@ public class PdfReportGenerator {
                             int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
                             int nh3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Наименование собственника");
                             int nh4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Юридический адрес");
-                            int nextHeaderLines = Math.max(Math.max(nh1, nh2), Math.max(nh3, nh4));
+                            int nh5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Телефоны");
+                            int nextHeaderLines = Math.max(Math.max(nh1, nh2), Math.max(Math.max(nh3, nh4), nh5));
                             yPosition -= (ROW_HEIGHT * nextHeaderLines) + 2;
                         }
 
@@ -125,7 +130,8 @@ public class PdfReportGenerator {
                         int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectLocation")));
                         int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, getValue(obj.get("ownerName")));
                         int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.get("companyLocated")));
-                        int rowLines = Math.max(Math.max(l1, l2), Math.max(l3, l4));
+                        int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.get("phones")));
+                        int rowLines = Math.max(Math.max(l1, l2), Math.max(Math.max(l3, l4), l5));
                         yPosition -= (ROW_HEIGHT * rowLines);
                     }
                 } else {
@@ -175,21 +181,22 @@ public class PdfReportGenerator {
         return page.getMediaBox().getHeight() - MARGIN;
     }
 
-    /** Стартовые X для 4 колонок, равномерно по ширине страницы. */
+    /** Стартовые X для 5 колонок, равномерно по ширине страницы. */
     private float[] columnStarts(PDPage page) {
         float usableWidth = page.getMediaBox().getWidth() - (MARGIN * 2);
-        float colWidth = usableWidth / 4f;
+        float colWidth = usableWidth / 5f;
         return new float[]{
             MARGIN,
             MARGIN + colWidth,
             MARGIN + (2 * colWidth),
-            MARGIN + (3 * colWidth)
+            MARGIN + (3 * colWidth),
+            MARGIN + (4 * colWidth)
         };
     }
 
     private float columnWidth(PDPage page) {
         float usableWidth = page.getMediaBox().getWidth() - (MARGIN * 2);
-        return usableWidth / 4f;
+        return usableWidth / 5f;
     }
 
     private int drawWrappedText(PDPageContentStream contentStream, PDType0Font font, int size,
@@ -204,24 +211,31 @@ public class PdfReportGenerator {
     }
 
     private List<String> wrapLines(PDType0Font font, int size, String text, float maxWidth) throws IOException {
-        String normalized = (text == null ? "—" : text).replace("\r", " ").replace("\n", " ").trim();
-        if (normalized.isEmpty()) normalized = "—";
         java.util.ArrayList<String> out = new java.util.ArrayList<>();
-        String[] words = normalized.split("\\s+");
-        StringBuilder line = new StringBuilder();
-        for (String w : words) {
-            String candidate = line.length() == 0 ? w : line + " " + w;
-            float width = font.getStringWidth(candidate) / 1000f * size;
-            if (width <= maxWidth || line.length() == 0) {
-                line.setLength(0);
-                line.append(candidate);
-            } else {
-                out.add(line.toString());
-                line.setLength(0);
-                line.append(w);
+        String normalized = text == null ? "—" : text.replace("\r", "");
+        String[] forcedLines = normalized.split("\n", -1);
+        for (String forced : forcedLines) {
+            String part = forced.trim();
+            if (part.isEmpty()) {
+                out.add("—");
+                continue;
             }
+            String[] words = part.split("\\s+");
+            StringBuilder line = new StringBuilder();
+            for (String w : words) {
+                String candidate = line.length() == 0 ? w : line + " " + w;
+                float width = font.getStringWidth(candidate) / 1000f * size;
+                if (width <= maxWidth || line.length() == 0) {
+                    line.setLength(0);
+                    line.append(candidate);
+                } else {
+                    out.add(line.toString());
+                    line.setLength(0);
+                    line.append(w);
+                }
+            }
+            if (line.length() > 0) out.add(line.toString());
         }
-        if (line.length() > 0) out.add(line.toString());
         if (out.isEmpty()) out.add("—");
         return out;
     }

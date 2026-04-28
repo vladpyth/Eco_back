@@ -107,6 +107,15 @@ public class ReportService {
                 objectDetail.put("ownerName", object.getName_own());
                 objectDetail.put("companyLocated", object.getCompany_located());
                 objectDetail.put(
+                        "phones",
+                        object.getPhones() == null
+                                ? ""
+                                : object.getPhones().stream()
+                                .map(NumberPhone::getNumber)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining("\n"))
+                );
+                objectDetail.put(
                         "groupPlaceName",
                         object.getId_group_place_save() != null
                                 ? object.getId_group_place_save().getName_group()
