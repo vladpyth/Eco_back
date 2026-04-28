@@ -11,11 +11,13 @@ import jakarta.validation.constraints.NotNull;
 @Schema(description = "Запрос для сущности NumberPhone")
 public class NumberPhoneRequest {
 
-    @Schema(description = "ID ObjectPlaceTrash", example = "1")
-    @NotNull(message = "idObjectPlaceTrash обязателен")
+    @Schema(description = "ID ObjectPlaceTrash (обязателен при POST / создании привязки; для PUT можно не указывать, если меняется только строка номера)")
     private Long idObjectPlaceTrash;
 
     @Schema(description = "Номер телефона", example = "+375291234567")
     @NotNull(message = "number обязателен")
     private String number;
+
+    @Schema(description = "принадлежность связи (0 юр., 1 объект, 3 оба)", example = "1")
+    private int ur_ob;
 }

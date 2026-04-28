@@ -1,6 +1,7 @@
 package com.example.eco_service.services;
 
 import com.example.eco_service.dto.main_dto.WasteReportDto;
+import com.example.eco_service.dto.response.PhoneOnObjectResponse;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -74,11 +75,12 @@ public class ReportService {
                             city.getId_region().getId_region().equals(region.getId_region()))
                     .collect(Collectors.toList());
 
-            // Находим объекты в этих городах
+            // Находим объекты в этих городах (поле status в UI — «Исключен»: true = не включать в отчёт)
             List<ObjectPlaceTrash> objectsInRegion = objectPlaceTrashRepository.findAll()
                     .stream()
                     .filter(obj -> obj.getId_cities() != null &&
                             citiesInRegion.contains(obj.getId_cities()))
+                    .filter(obj -> !Boolean.TRUE.equals(obj.getStatus()))
                     .collect(Collectors.toList());
 
             // Собираем детальную информацию по объектам
@@ -106,14 +108,11 @@ public class ReportService {
                 objectDetail.put("objectLocation", object.getPlace_obj());
                 objectDetail.put("ownerName", object.getName_own());
                 objectDetail.put("companyLocated", object.getCompany_located());
+                objectDetail.put("phonesLegal", joinPhonesByUrRole(object.getPhones(), true));
+                objectDetail.put("phonesOwner", joinPhonesByUrRole(object.getPhones(), false));
                 objectDetail.put(
                         "phones",
-                        object.getPhones() == null
-                                ? ""
-                                : object.getPhones().stream()
-                                .map(NumberPhone::getNumber)
-                                .filter(Objects::nonNull)
-                                .collect(Collectors.joining("\n"))
+                        joinPhonesByUrRole(object.getPhones(), true)
                 );
                 objectDetail.put(
                         "groupPlaceName",
@@ -476,5 +475,26 @@ public class ReportService {
                 .registrationNumber(object.getId_registration())
                 .status(object.getStatus())
                 .build();
+    }
+
+    /** legal: юр. телефоны (0 или 3); иначе телефоны собственника (1 или 3). */
+    private String joinPhonesByUrRole(List<PhoneOnObjectResponse> phones, boolean legal) {
+        if (phones == null || phones.isEmpty()) {
+            return "";
+        }
+        return phones.stream()
+                .filter(p -> {
+                    int u = p.getUr_ob();
+                    if (legal) {
+                        return u == 0 || u == 3;
+                    }
+                    return u == 1 || u == 3;
+                })
+                .map(PhoneOnObjectResponse::getNumber)
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .distinct()
+                .collect(Collectors.joining("\n"));
     }
 }

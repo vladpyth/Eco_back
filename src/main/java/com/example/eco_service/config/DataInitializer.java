@@ -42,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
     private final InterfAroundBuildCount aroundBuildCountRepository;
     private final InterfNatualSaveBuildCount natualSaveBuildCountRepository;
     private final InterfNumberPhone numberPhoneRepository;
+    private final InterfNumberPhoneCount numberPhoneCountRepository;
     private final InterfCleanerBuilds cleanerBuildsRepository;
     private final InterfCharacteristicTrash characteristicTrashRepository;
 
@@ -418,24 +419,43 @@ public class DataInitializer implements CommandLineRunner {
         // 2.7 Номера телефонов объектов
         List<NumberPhone> numberPhones = Arrays.asList(
                 NumberPhone.builder()
-                        .objectPlaceTrash(objectPlaceTrashes.get(0))
                         .number("+380442345678")
                         .build(),
                 NumberPhone.builder()
-                        .objectPlaceTrash(objectPlaceTrashes.get(0))
                         .number("+380442345679")
                         .build(),
                 NumberPhone.builder()
-                        .objectPlaceTrash(objectPlaceTrashes.get(1))
                         .number("+380322345678")
                         .build(),
                 NumberPhone.builder()
-                        .objectPlaceTrash(objectPlaceTrashes.get(2))
                         .number("+380482345678")
                         .build()
         );
-        numberPhoneRepository.saveAll(numberPhones);
-        log.info("Created {} phone numbers", numberPhones.size());
+        numberPhones = numberPhoneRepository.saveAll(numberPhones);
+        List<NumberPhoneCount> numberPhoneCounts = Arrays.asList(
+                NumberPhoneCount.builder()
+                        .id_object_place_trash(objectPlaceTrashes.get(0))
+                        .id_phone_number(numberPhones.get(0))
+                        .ur_ob(0)
+                        .build(),
+                NumberPhoneCount.builder()
+                        .id_object_place_trash(objectPlaceTrashes.get(0))
+                        .id_phone_number(numberPhones.get(1))
+                        .ur_ob(1)
+                        .build(),
+                NumberPhoneCount.builder()
+                        .id_object_place_trash(objectPlaceTrashes.get(1))
+                        .id_phone_number(numberPhones.get(2))
+                        .ur_ob(0)
+                        .build(),
+                NumberPhoneCount.builder()
+                        .id_object_place_trash(objectPlaceTrashes.get(2))
+                        .id_phone_number(numberPhones.get(3))
+                        .ur_ob(1)
+                        .build()
+        );
+        numberPhoneCountRepository.saveAll(numberPhoneCounts);
+        log.info("Created {} phone numbers and {} links", numberPhones.size(), numberPhoneCounts.size());
 
         // 2.8 Очистные сооружения
         List<CleanerBuilds> cleanerBuilds = Arrays.asList(

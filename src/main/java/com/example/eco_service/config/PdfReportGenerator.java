@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,7 @@ public class PdfReportGenerator {
             float col3 = cols[2];
             float col4 = cols[3];
             float col5 = cols[4];
+            float col6 = cols[5];
             float colWidth = columnWidth(page);
 
             // Заголовок только на первой странице (по центру)
@@ -56,10 +58,7 @@ public class PdfReportGenerator {
                 "Реестр объектов хранения, захоронения и обезвреживания отходов");
             yPosition -= 16;
             writeCenteredText(contentStream, page, font, 12, yPosition, "(хранение, захоронение)");
-            yPosition -= 20;
-            String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-            writeText(contentStream, font, 9, MARGIN, MARGIN - 8, dateStr);
-            yPosition -= 20;
+            yPosition -= 40;
 
             for (Map<String, Object> region : summaryData) {
                 String regionName = (String) region.get("regionName");
@@ -78,6 +77,7 @@ public class PdfReportGenerator {
                     col3 = cols[2];
                     col4 = cols[3];
                     col5 = cols[4];
+                    col6 = cols[5];
                     colWidth = columnWidth(page);
                 }
 
@@ -88,12 +88,13 @@ public class PdfReportGenerator {
                 yPosition -= HEADER_GAP;
 
                 // Затем заголовки столбцов
-                int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
-                int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
-                int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Наименование собственника");
-                int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Юридический адрес");
-                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Телефоны");
-                int headerLines = Math.max(Math.max(h1, h2), Math.max(Math.max(h3, h4), h5));
+                int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Реестровый номер");
+                int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Наименование объекта");
+                int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Местонахождение объекта");
+                int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование собственника");
+                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Юридический адрес");
+                int h6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Юр. телефоны");
+                int headerLines = Math.max(Math.max(Math.max(h1, h2), Math.max(h3, h4)), Math.max(h5, h6));
                 yPosition -= (ROW_HEIGHT * headerLines) + 2;
 
                 if (objects != null && !objects.isEmpty()) {
@@ -110,6 +111,7 @@ public class PdfReportGenerator {
                             col3 = cols[2];
                             col4 = cols[3];
                             col5 = cols[4];
+                            col6 = cols[5];
                             colWidth = columnWidth(page);
 
                             // На новых страницах без общего заголовка; повторяем только секцию
@@ -117,21 +119,27 @@ public class PdfReportGenerator {
                             yPosition -= HEADER_GAP;
                             writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
                             yPosition -= HEADER_GAP;
-                            int nh1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
-                            int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
-                            int nh3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Наименование собственника");
-                            int nh4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Юридический адрес");
-                            int nh5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Телефоны");
-                            int nextHeaderLines = Math.max(Math.max(nh1, nh2), Math.max(Math.max(nh3, nh4), nh5));
+                            int nh1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Реестровый номер");
+                            int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Наименование объекта");
+                            int nh3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Местонахождение объекта");
+                            int nh4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование собственника");
+                            int nh5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Юридический адрес");
+                            int nh6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Юр. телефоны");
+                            int nextHeaderLines = Math.max(Math.max(Math.max(nh1, nh2), Math.max(nh3, nh4)), Math.max(nh5, nh6));
                             yPosition -= (ROW_HEIGHT * nextHeaderLines) + 2;
                         }
 
-                        int l1 = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, getValue(obj.get("objectName")));
-                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectLocation")));
-                        int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, getValue(obj.get("ownerName")));
-                        int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.get("companyLocated")));
-                        int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.get("phones")));
-                        int rowLines = Math.max(Math.max(l1, l2), Math.max(Math.max(l3, l4), l5));
+                        Object rawLegal = obj.get("phonesLegal");
+                        if (rawLegal == null || String.valueOf(rawLegal).isBlank()) {
+                            rawLegal = obj.get("phones");
+                        }
+                        int l1 = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, getValue(obj.get("registrationNumber")));
+                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectName")));
+                        int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, locationWithOwnerPhones(obj));
+                        int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.get("ownerName")));
+                        int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.get("companyLocated")));
+                        int l6 = drawWrappedText(contentStream, font, 8, col6, yPosition, colWidth - 8, getValue(rawLegal));
+                        int rowLines = Math.max(Math.max(Math.max(l1, l2), Math.max(l3, l4)), Math.max(l5, l6));
                         yPosition -= (ROW_HEIGHT * rowLines);
                     }
                 } else {
@@ -143,6 +151,22 @@ public class PdfReportGenerator {
             }
 
             contentStream.close();
+
+            // Дата (слева снизу) и нумерация страниц (справа снизу) на каждом листе.
+            String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+            int totalPages = document.getNumberOfPages();
+            for (int i = 0; i < totalPages; i++) {
+                PDPage p = document.getPage(i);
+                String pageLabel = (i + 1) + " / " + totalPages;
+                float textWidth = font.getStringWidth(pageLabel) / 1000f * 9f;
+                float xRight = p.getMediaBox().getWidth() - MARGIN - textWidth;
+                float yBottom = MARGIN - 8;
+                try (PDPageContentStream pageNoStream =
+                             new PDPageContentStream(document, p, AppendMode.APPEND, true, true)) {
+                    writeText(pageNoStream, font, 9, MARGIN, yBottom, dateStr);
+                    writeText(pageNoStream, font, 9, xRight, yBottom, pageLabel);
+                }
+            }
 
             document.save(baos);
             log.info("PDF generated successfully");
@@ -181,22 +205,36 @@ public class PdfReportGenerator {
         return page.getMediaBox().getHeight() - MARGIN;
     }
 
-    /** Стартовые X для 5 колонок, равномерно по ширине страницы. */
+    /** Стартовые X для 6 колонок, равномерно по ширине страницы. */
     private float[] columnStarts(PDPage page) {
         float usableWidth = page.getMediaBox().getWidth() - (MARGIN * 2);
-        float colWidth = usableWidth / 5f;
+        float colWidth = usableWidth / 6f;
         return new float[]{
             MARGIN,
             MARGIN + colWidth,
             MARGIN + (2 * colWidth),
             MARGIN + (3 * colWidth),
-            MARGIN + (4 * colWidth)
+            MARGIN + (4 * colWidth),
+            MARGIN + (5 * colWidth)
         };
     }
 
     private float columnWidth(PDPage page) {
         float usableWidth = page.getMediaBox().getWidth() - (MARGIN * 2);
-        return usableWidth / 5f;
+        return usableWidth / 6f;
+    }
+
+    /** Местонахождение; ниже телефоны собственника (один перевод строки между блоками). */
+    private String locationWithOwnerPhones(Map<String, Object> obj) {
+        String loc = getValue(obj.get("objectLocation"));
+        String owner = getValue(obj.get("phonesOwner"));
+        if ("—".equals(owner)) {
+            return loc;
+        }
+        if ("—".equals(loc)) {
+            return owner;
+        }
+        return loc + "\n" + owner;
     }
 
     private int drawWrappedText(PDPageContentStream contentStream, PDType0Font font, int size,
@@ -217,7 +255,6 @@ public class PdfReportGenerator {
         for (String forced : forcedLines) {
             String part = forced.trim();
             if (part.isEmpty()) {
-                out.add("—");
                 continue;
             }
             String[] words = part.split("\\s+");

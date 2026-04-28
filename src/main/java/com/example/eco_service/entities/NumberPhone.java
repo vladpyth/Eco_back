@@ -22,14 +22,10 @@ public class NumberPhone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_phone_number;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_object_place_trash")
-    @JsonIgnore  // Игнорируем обратную ссылку при сериализации
-    private ObjectPlaceTrash objectPlaceTrash;
+    @OneToMany(mappedBy = "id_phone_number", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private java.util.List<NumberPhoneCount> numberPhoneCounts;
 
     @Column(nullable = false, unique = true, length = 17)
     private String number;
-
-
-
 }

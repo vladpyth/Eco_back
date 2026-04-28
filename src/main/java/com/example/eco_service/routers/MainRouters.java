@@ -730,6 +730,15 @@ public class MainRouters {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("object-place-trash/{objectId}/number-phone/{phoneId}")
+    @Operation(summary = "Отвязать телефон от объекта (номер в справочнике не удаляется)")
+    public ResponseEntity<Void> unlinkNumberPhoneFromObject(
+            @PathVariable Long objectId,
+            @PathVariable Long phoneId) {
+        numberPhoneService.unlinkNumberPhoneFromObject(objectId, phoneId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("object-place-trash/{id}")
     @Operation(summary = "Обновить запись (только основные поля)")
     public ResponseEntity<ObjectPlaceTrash> updateObjectPlaceTrash(

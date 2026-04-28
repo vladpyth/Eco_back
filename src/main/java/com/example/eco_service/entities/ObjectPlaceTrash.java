@@ -1,7 +1,8 @@
 package com.example.eco_service.entities;
 
-
+import com.example.eco_service.dto.response.PhoneOnObjectResponse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,8 +52,21 @@ public class ObjectPlaceTrash {
     @JoinColumn(name = "id_gruops_degree",nullable = true)
     private GruopsDegree id_gruops_degree ;
 
-    @OneToMany(mappedBy = "objectPlaceTrash", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<NumberPhone> phones;
+    @OneToMany(mappedBy = "id_object_place_trash",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JsonIgnore
+    private List<NumberPhoneCount> numberPhoneCounts = new ArrayList<>();
+
+    @Transient
+    @JsonProperty("phones")
+    public List<PhoneOnObjectResponse> getPhones() {
+        if (numberPhoneCounts == null || numberPhoneCounts.isEmpty()) return new ArrayList<>();
+        return numberPhoneCounts.stream()
+                .filter(c -> c.getId_phone_number() != null)
+                .map(PhoneOnObjectResponse::from)
+                .toList();
+    }
 
     @OneToMany(mappedBy = "id_object_place_trash",
             cascade = CascadeType.ALL,        // или CascadeType.REMOVE

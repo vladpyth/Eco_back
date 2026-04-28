@@ -34,6 +34,7 @@ public class CRUDServices {
     private final InterfNameGroup nameGroupRepository;
     private final InterfNatualSaveBuilding natualSaveBuildingRepository;
     private final InterfNumberPhone numberPhoneRepository;
+    private final InterfNumberPhoneCount numberPhoneCountRepository;
     private final InterfStorageScheme storageSchemeRepository;
 
 
@@ -721,24 +722,32 @@ public class CRUDServices {
     public NumberPhone createNumberPhone(NumberPhoneRequest request) {
         log.info("Creating NumberPhone with number: {}", request.getNumber());
 
-        // Находим объект ObjectPlaceTrash
+        if (request.getIdObjectPlaceTrash() == null) {
+            throw new RuntimeException("idObjectPlaceTrash is required when creating a phone");
+        }
+
         ObjectPlaceTrash objectPlaceTrash = objectPlaceTrashRepository.findById(request.getIdObjectPlaceTrash())
                 .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + request.getIdObjectPlaceTrash()));
 
-        // Создаем номер телефона
-        NumberPhone entity = NumberPhone.builder()
-                .objectPlaceTrash(objectPlaceTrash)  // изменено с id_object_place_trash на objectPlaceTrash
-                .number(request.getNumber())
-                .build();
+        NumberPhone phone = numberPhoneRepository.findByNumber(request.getNumber())
+                .orElseGet(() -> NumberPhone.builder()
+                        .number(request.getNumber())
+                        .build());
+        NumberPhone savedPhone = numberPhoneRepository.save(phone);
 
-        // Сохраняем номер
-        NumberPhone savedPhone = numberPhoneRepository.save(entity);
-
-        // Добавляем номер в коллекцию объекта (для поддержки двунаправленной связи)
-        if (objectPlaceTrash.getPhones() == null) {
-            objectPlaceTrash.setPhones(new ArrayList<>());
-        }
-        objectPlaceTrash.getPhones().add(savedPhone);
+        Long oid = objectPlaceTrash.getId_object_place_trash();
+        Long pid = savedPhone.getId_phone_number();
+        numberPhoneCountRepository.findLink(oid, pid).ifPresentOrElse(
+                link -> {
+                    link.setUr_ob(request.getUr_ob());
+                    numberPhoneCountRepository.save(link);
+                },
+                () -> numberPhoneCountRepository.save(NumberPhoneCount.builder()
+                        .id_object_place_trash(objectPlaceTrash)
+                        .id_phone_number(savedPhone)
+                        .ur_ob(request.getUr_ob())
+                        .build())
+        );
 
         log.info("Created NumberPhone with id: {}", savedPhone.getId_phone_number());
         return savedPhone;
@@ -766,28 +775,24 @@ public class CRUDServices {
         NumberPhone entity = numberPhoneRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("NumberPhone not found with id: " + id));
 
-        // Обновляем связь с ObjectPlaceTrash если передан новый ID
         if (request.getIdObjectPlaceTrash() != null) {
-            // Удаляем номер из старого объекта
-            if (entity.getObjectPlaceTrash() != null && entity.getObjectPlaceTrash().getPhones() != null) {
-                entity.getObjectPlaceTrash().getPhones().remove(entity);
-            }
-
-            // Находим новый объект
             ObjectPlaceTrash newObjectPlaceTrash = objectPlaceTrashRepository.findById(request.getIdObjectPlaceTrash())
                     .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + request.getIdObjectPlaceTrash()));
-
-            // Обновляем связь
-            entity.setObjectPlaceTrash(newObjectPlaceTrash);  // изменено с id_object_place_trash на objectPlaceTrash
-
-            // Добавляем номер в коллекцию нового объекта
-            if (newObjectPlaceTrash.getPhones() == null) {
-                newObjectPlaceTrash.setPhones(new ArrayList<>());
-            }
-            newObjectPlaceTrash.getPhones().add(entity);
+            Long oid = newObjectPlaceTrash.getId_object_place_trash();
+            Long phoneId = entity.getId_phone_number();
+            numberPhoneCountRepository.findLink(oid, phoneId).ifPresentOrElse(
+                    link -> {
+                        link.setUr_ob(request.getUr_ob());
+                        numberPhoneCountRepository.save(link);
+                    },
+                    () -> numberPhoneCountRepository.save(NumberPhoneCount.builder()
+                            .id_object_place_trash(newObjectPlaceTrash)
+                            .id_phone_number(entity)
+                            .ur_ob(request.getUr_ob())
+                            .build())
+            );
         }
 
-        // Обновляем номер телефона
         if (request.getNumber() != null) {
             entity.setNumber(request.getNumber());
         }
@@ -799,16 +804,17 @@ public class CRUDServices {
     public void deleteNumberPhone(Long id) {
         log.info("Deleting NumberPhone with id: {}", id);
 
-        NumberPhone entity = numberPhoneRepository.findById(id)
+        numberPhoneRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("NumberPhone not found with id: " + id));
-
-        // Удаляем номер из коллекции связанного объекта
-        if (entity.getObjectPlaceTrash() != null && entity.getObjectPlaceTrash().getPhones() != null) {
-            entity.getObjectPlaceTrash().getPhones().remove(entity);
-        }
-
+        numberPhoneCountRepository.deleteAllByPhoneId(id);
         numberPhoneRepository.deleteById(id);
         log.info("Deleted NumberPhone with id: {}", id);
+    }
+
+    /** Удаляет только связь объекта с номером; запись {@link NumberPhone} остаётся в справочнике. */
+    public void unlinkNumberPhoneFromObject(Long objectPlaceId, Long phoneId) {
+        log.info("Unlinking phone {} from object {}", phoneId, objectPlaceId);
+        numberPhoneCountRepository.deleteLink(objectPlaceId, phoneId);
     }
     /*
     // ==================== Дополнительные методы ====================
