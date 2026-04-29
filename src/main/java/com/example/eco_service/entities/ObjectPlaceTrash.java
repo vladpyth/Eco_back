@@ -96,6 +96,9 @@ public class ObjectPlaceTrash {
     private String company_located;
 
     @Column()
+    private String payer_indentification_number;
+
+    @Column()
     private String place_obj;
 
     @Column()

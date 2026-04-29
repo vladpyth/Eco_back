@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,21 +86,30 @@ public class PdfReportGenerator {
                 writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
                 yPosition -= HEADER_GAP;
                 writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
-                yPosition -= HEADER_GAP;
+                yPosition -= (HEADER_GAP + 6f);
+                float tableTopY = yPosition;
+                List<Float> horizontalSeparators = new ArrayList<>();
 
                 // Затем заголовки столбцов
-                int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Реестровый номер");
-                int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Наименование объекта");
-                int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Местонахождение объекта");
-                int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование собственника");
-                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Юридический адрес");
-                int h6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Юр. телефоны");
+                int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
+                int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
+                int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Телефон объекта");
+                int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование заявителя");
+                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Адрес заявителя");
+                int h6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Телефон заявителя");
                 int headerLines = Math.max(Math.max(Math.max(h1, h2), Math.max(h3, h4)), Math.max(h5, h6));
                 yPosition -= (ROW_HEIGHT * headerLines) + 2;
+                horizontalSeparators.add(yPosition);
 
                 if (objects != null && !objects.isEmpty()) {
                     for (Map<String, Object> obj : objects) {
                         if (yPosition < 70) {
+                            // Дорисовываем внутреннюю сетку текущего фрагмента перед переносом.
+                            List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
+                            if (!separatorsToDraw.isEmpty()) {
+                                separatorsToDraw.remove(separatorsToDraw.size() - 1);
+                            }
+                            drawInnerGrid(contentStream, cols, colWidth, tableTopY, yPosition, separatorsToDraw);
                             contentStream.close();
                             page = new PDPage(LANDSCAPE_A4);
                             document.addPage(page);
@@ -118,34 +128,47 @@ public class PdfReportGenerator {
                             writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
                             yPosition -= HEADER_GAP;
                             writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
-                            yPosition -= HEADER_GAP;
-                            int nh1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Реестровый номер");
-                            int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Наименование объекта");
-                            int nh3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Местонахождение объекта");
-                            int nh4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование собственника");
-                            int nh5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Юридический адрес");
-                            int nh6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Юр. телефоны");
+                            yPosition -= (HEADER_GAP + 6f);
+                            tableTopY = yPosition;
+                            horizontalSeparators = new ArrayList<>();
+                            int nh1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
+                            int nh2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
+                            int nh3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Телефон объекта");
+                            int nh4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование заявителя");
+                            int nh5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Адрес заявителя");
+                            int nh6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Телефон заявителя");
                             int nextHeaderLines = Math.max(Math.max(Math.max(nh1, nh2), Math.max(nh3, nh4)), Math.max(nh5, nh6));
                             yPosition -= (ROW_HEIGHT * nextHeaderLines) + 2;
+                            horizontalSeparators.add(yPosition);
                         }
 
                         Object rawLegal = obj.get("phonesLegal");
                         if (rawLegal == null || String.valueOf(rawLegal).isBlank()) {
                             rawLegal = obj.get("phones");
                         }
-                        int l1 = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, getValue(obj.get("registrationNumber")));
-                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectName")));
-                        int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, locationWithOwnerPhones(obj));
+                        Object rawOwner = obj.get("phonesOwner");
+                        int l1 = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, objectNameWithMeta(obj));
+                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectLocation")));
+                        int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, getValue(rawOwner));
                         int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.get("ownerName")));
                         int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.get("companyLocated")));
                         int l6 = drawWrappedText(contentStream, font, 8, col6, yPosition, colWidth - 8, getValue(rawLegal));
                         int rowLines = Math.max(Math.max(Math.max(l1, l2), Math.max(l3, l4)), Math.max(l5, l6));
                         yPosition -= (ROW_HEIGHT * rowLines);
+                        horizontalSeparators.add(yPosition);
                     }
                 } else {
                     int noObjLines = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, "Нет объектов в данной области");
                     yPosition -= ROW_HEIGHT * noObjLines;
                 }
+
+                // Рисуем только внутреннюю сетку: без внешних рамок слева/справа/снизу/сверху.
+                List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
+                if (objects != null && !objects.isEmpty() && !separatorsToDraw.isEmpty()) {
+                    // Последняя граница это нижний край таблицы — не рисуем.
+                    separatorsToDraw.remove(separatorsToDraw.size() - 1);
+                }
+                drawInnerGrid(contentStream, cols, colWidth, tableTopY, yPosition, separatorsToDraw);
 
                 yPosition -= HEADER_GAP;
             }
@@ -224,17 +247,44 @@ public class PdfReportGenerator {
         return usableWidth / 6f;
     }
 
-    /** Местонахождение; ниже телефоны собственника (один перевод строки между блоками). */
-    private String locationWithOwnerPhones(Map<String, Object> obj) {
-        String loc = getValue(obj.get("objectLocation"));
-        String owner = getValue(obj.get("phonesOwner"));
-        if ("—".equals(owner)) {
-            return loc;
+    /** Наименование объекта + под ним реестровый номер и УНП. */
+    private String objectNameWithMeta(Map<String, Object> obj) {
+        String name = getValue(obj.get("objectName"));
+        String reg = getValue(obj.get("registrationNumber"));
+        String payer = getValue(obj.get("payerIdentificationNumber"));
+        return name + "\nРеестровый номер: " + reg + "\nУНП: " + payer;
+    }
+
+    /** Внутренняя сетка таблицы без внешней рамки (как поле крестики-нолики). */
+    private void drawInnerGrid(
+            PDPageContentStream contentStream,
+            float[] colStarts,
+            float colWidth,
+            float topY,
+            float bottomY,
+            List<Float> horizontalYs
+    ) throws IOException {
+        if (topY <= bottomY) return;
+        contentStream.setLineWidth(0.6f);
+        final float verticalShiftLeft = 3f;
+        // Внутренние вертикальные линии между колонками.
+        for (int i = 1; i < colStarts.length; i++) {
+            float x = colStarts[i] - verticalShiftLeft;
+            contentStream.moveTo(x, topY);
+            contentStream.lineTo(x, bottomY);
         }
-        if ("—".equals(loc)) {
-            return owner;
+        // Внутренние горизонтальные линии между строками.
+        float left = colStarts[0];
+        float right = colStarts[0] + (colWidth * colStarts.length);
+        final float textSafeLift = ROW_HEIGHT * 0.75f;
+        for (Float y : horizontalYs) {
+            if (y == null) continue;
+            float yLine = y + textSafeLift;
+            if (yLine >= topY || yLine <= bottomY) continue;
+            contentStream.moveTo(left, yLine);
+            contentStream.lineTo(right, yLine);
         }
-        return loc + "\n" + owner;
+        contentStream.stroke();
     }
 
     private int drawWrappedText(PDPageContentStream contentStream, PDType0Font font, int size,

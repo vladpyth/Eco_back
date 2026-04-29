@@ -55,6 +55,9 @@ public class ObjectPlaceTrashRequest {
     @Schema(description = "Год ввода в эксплуатацию", example = "2015")
     private Integer startUse;
 
+    @Schema(description = "УНП", example = "2579235")
+    private String payer_indentification_number;
+
     @Schema(description = "Срок службы", example = "25 лет")
     private String serviseLife;
 

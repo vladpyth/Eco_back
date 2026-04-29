@@ -122,6 +122,7 @@ public class ReportService {
                 );
                 objectDetail.put("status", object.getStatus() ? "Активен" : "Неактивен");
                 objectDetail.put("registrationNumber", object.getId_registration());
+                objectDetail.put("payerIdentificationNumber", object.getPayer_indentification_number());
                 objectDetail.put("startUse", object.getStart_use());
                 objectDetail.put("square", object.getSquare());
 

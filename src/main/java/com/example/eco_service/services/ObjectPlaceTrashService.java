@@ -220,6 +220,10 @@ public class ObjectPlaceTrashService {
             entity.setName_obj(request.getNameObj());
         }
 
+        if (request.getPayer_indentification_number() != null) {
+            entity.setPayer_indentification_number(request.getPayer_indentification_number());
+        }
+
         if (request.getNameOwn() != null) {
             entity.setName_own(request.getNameOwn());
         }
@@ -378,7 +382,7 @@ public class ObjectPlaceTrashService {
         entity.setDate_axclute(req.getDateAxclute());
         entity.setReson_axclute(req.getResonAxclute());
         entity.setStatus(req.getStatus());
-
+        entity.setPayer_indentification_number(req.getPayer_indentification_number());
         return entity;
     }
 
