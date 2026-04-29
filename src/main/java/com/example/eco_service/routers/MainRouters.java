@@ -32,8 +32,42 @@ public class MainRouters {
     private final CRUDServices aroundBuildService, characteristicTrashService, citiesService, classDangerService,
                                 cleanerBuildsService, commentsOfPlaceService, groupPlaceSaveService, gruopsDegreeService,
                             levelTrashService, magazinTrashService, nameGroupService, natualSaveBuildingService,
-                        numberPhoneService, physicalStateService, regionService,storageSchemeService, typeTrash1Service;
+                        numberPhoneService, physicalStateService, regionService,storageSchemeService, typeTrash1Service,
+                        districtService;
     private final ObjectPlaceTrashService objectPlaceTrashService;
+
+    @PostMapping("district")
+    public ResponseEntity<District> createDistrict(@Valid @RequestBody DistrictRequest request) {
+        District entity = districtService.createDistrict(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(entity);
+    }
+
+    @GetMapping("district")
+    public ResponseEntity<List<District>> findAllDistricts() {
+        List<District> entities = districtService.findAllDistricts();
+        return ResponseEntity.ok(entities);
+    }
+
+    @GetMapping("district/{id}")
+    public ResponseEntity<District> findByIdDistrict(@PathVariable Long id) {
+        District entity = districtService.findByIdDistrict(id);
+        return ResponseEntity.ok(entity);
+    }
+
+    @PutMapping("district/{id}")
+    public ResponseEntity<District> updateDistrict(
+            @PathVariable Long id,
+            @Valid @RequestBody DistrictRequest request) {
+        District entity = districtService.updateDistrict(id, request);
+        return ResponseEntity.ok(entity);
+    }
+
+    @DeleteMapping("district/{id}")
+    public ResponseEntity<Void> deleteDistrict(@PathVariable Long id) {
+        districtService.deleteDistrict(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @PostMapping("around-build")
     @Operation(summary = "Создать новую запись")

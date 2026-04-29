@@ -13,26 +13,15 @@ import org.hibernate.envers.Audited;
 @AllArgsConstructor
 @Entity
 @Audited
-@Table(name = "Cities")
-public class Cities {
+@Table(name = "District")
+public class District {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id_cities;
-
-    @ManyToOne
-    @JoinColumn(name = "id_region")
-    private Region id_region;
-
-    @Column(nullable = false, unique = true, length = 7)
-    private String index;
-
-    @ManyToOne
-    @JoinColumn(name = "id_district")
-    private District id_district;
-
+    private Long id_district;
 
     @Column(nullable = false,  length = 50)
-    private String name_cities;
+    private String name_district;
+
 
 }

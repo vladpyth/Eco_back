@@ -45,6 +45,7 @@ public class DataInitializer implements CommandLineRunner {
     private final InterfNumberPhoneCount numberPhoneCountRepository;
     private final InterfCleanerBuilds cleanerBuildsRepository;
     private final InterfCharacteristicTrash characteristicTrashRepository;
+    private final InterfDistrict districtRepository;
 
 
     @Override
@@ -73,14 +74,23 @@ public class DataInitializer implements CommandLineRunner {
         regions = regionRepository.saveAll(regions);
         log.info("Created {} regions", regions.size());
 
+        List<District> districts = Arrays.asList(
+                District.builder().name_district("Брестский").build(),
+                District.builder().name_district("Каменецкий").build(),
+                District.builder().name_district("Кобринский").build(),
+                District.builder().name_district("Лунинецкий").build(),
+                District.builder().name_district("Малоритский").build()
+        );
+        districts = districtRepository.saveAll(districts);
+        log.info("Created {} regions", districts.size());
         // 1.2 Города
         List<Cities> cities = Arrays.asList(
-                Cities.builder().id_region(regions.get(0)).index("01001").district("Киевский").name_cities("Киев").build(),
-                Cities.builder().id_region(regions.get(0)).index("08132").district("Вишневский").name_cities("Вишня").build(),
-                Cities.builder().id_region(regions.get(1)).index("79000").district("Львовский").name_cities("Львов").build(),
-                Cities.builder().id_region(regions.get(2)).index("65000").district("Одесский").name_cities("Одесса").build(),
-                Cities.builder().id_region(regions.get(3)).index("49000").district("Днепрский").name_cities("Днепр").build(),
-                Cities.builder().id_region(regions.get(4)).index("61000").district("Харьковский").name_cities("Харьков").build()
+                Cities.builder().id_region(regions.get(0)).index("01001").id_district(districts.get(0)).name_cities("Киев").build(),
+                Cities.builder().id_region(regions.get(0)).index("08132").id_district(districts.get(1)).name_cities("Вишня").build(),
+                Cities.builder().id_region(regions.get(1)).index("79000").id_district(districts.get(2)).name_cities("Львов").build(),
+                Cities.builder().id_region(regions.get(2)).index("65000").id_district(districts.get(1)).name_cities("Одесса").build(),
+                Cities.builder().id_region(regions.get(3)).index("49000").id_district(districts.get(3)).name_cities("Днепр").build(),
+                Cities.builder().id_region(regions.get(4)).index("61000").id_district(districts.get(4)).name_cities("Харьков").build()
         );
         cities = citiesRepository.saveAll(cities);
         log.info("Created {} cities", cities.size());

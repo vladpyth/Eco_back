@@ -36,8 +36,52 @@ public class CRUDServices {
     private final InterfNumberPhone numberPhoneRepository;
     private final InterfNumberPhoneCount numberPhoneCountRepository;
     private final InterfStorageScheme storageSchemeRepository;
+    private final InterfDistrict districtRepository;
 
 
+    public District createDistrict(DistrictRequest request) {
+        log.info("Creating District with name: {}", request.getName_district());
+
+        District entity = District.builder()
+                .name_district(request.getName_district())
+                .build();
+
+        return districtRepository.save(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<District> findAllDistricts() {
+        log.info("Fetching all Districts");
+        return districtRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public District findByIdDistrict(Long id) {
+        log.info("Fetching District by id: {}", id);
+        return districtRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("District not found with id: " + id));
+    }
+
+    public District updateDistrict(Long id, DistrictRequest request) {
+        log.info("Updating District with id: {}", id);
+
+        District entity = districtRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("District not found with id: " + id));
+
+        entity.setName_district(request.getName_district());
+
+        return districtRepository.save(entity);
+    }
+
+    public void deleteDistrict(Long id) {
+        log.info("Deleting District with id: {}", id);
+
+        if (!districtRepository.existsById(id)) {
+            throw new RuntimeException("District not found with id: " + id);
+        }
+
+        districtRepository.deleteById(id);
+    }
 
     public AroundBuild createAroundBuild(AroundBuildRequest request) {
         log.info("Creating AroundBuild with name: {}", request.getName());
@@ -181,10 +225,12 @@ public class CRUDServices {
         Region region = regionRepository.findById(request.getIdRegion())
                 .orElseThrow(() -> new RuntimeException("Region not found with id: " + request.getIdRegion()));
 
+        District district = districtRepository.findById(request.getIdDistrict())
+                .orElseThrow(() -> new RuntimeException("district not found with id: " + request.getIdDistrict()));
         Cities entity = Cities.builder()
                 .id_region(region)
                 .index(request.getIndex())
-                .district(request.getDistrict())
+                .id_district(district)
                 .name_cities(request.getName_cities())
                 .build();
 
@@ -210,18 +256,28 @@ public class CRUDServices {
         Cities entity = cities.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cities not found with id: " + id));
 
+        // Обновление имени города
+        if (request.getName_cities() != null) {
+            entity.setName_cities(request.getName_cities());
+        }
+
+        // Обновление индекса
+        if (request.getIndex() != null) {
+            entity.setIndex(request.getIndex());
+        }
+
+        // Обновление региона
         if (request.getIdRegion() != null) {
             Region region = regionRepository.findById(request.getIdRegion())
                     .orElseThrow(() -> new RuntimeException("Region not found with id: " + request.getIdRegion()));
             entity.setId_region(region);
         }
 
-        if (request.getIndex() != null) {
-            entity.setIndex(request.getIndex());
-        }
-
-        if (request.getDistrict() != null) {
-            entity.setDistrict(request.getDistrict());
+        // Обновление района
+        if (request.getIdDistrict() != null) {
+            District district = districtRepository.findById(request.getIdDistrict())
+                    .orElseThrow(() -> new RuntimeException("District not found with id: " + request.getIdDistrict()));
+            entity.setId_district(district);
         }
 
         return cities.save(entity);

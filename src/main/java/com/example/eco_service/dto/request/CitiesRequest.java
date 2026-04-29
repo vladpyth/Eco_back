@@ -23,10 +23,9 @@ public class CitiesRequest {
     @Size(min = 1, max = 7, message = "Индекс от 1 до 7 символов")
     private String index;
 
-    @Schema(description = "Район", example = "Центральный")
-    @NotBlank(message = "Район обязателен")
-    @Size(max = 50, message = "Максимум 50 символов")
-    private String district;
+    @Schema(description = "id Район", example = "Центральный")
+    @NotNull(message = "Район обязателен")
+    private Long idDistrict;
 
     @Schema(description = "name_cities", example = "Центральный")
 
