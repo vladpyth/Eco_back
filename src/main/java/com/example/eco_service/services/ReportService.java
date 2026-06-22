@@ -1,6 +1,8 @@
 package com.example.eco_service.services;
 
 import com.example.eco_service.dto.main_dto.WasteReportDto;
+import com.example.eco_service.dto.main_dto.WasteRegisterObjectDto;
+import com.example.eco_service.dto.main_dto.WasteRegisterRegionDto;
 import com.example.eco_service.dto.response.PhoneOnObjectResponse;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
@@ -61,11 +63,11 @@ public class ReportService {
      * Возвращает список объектов с полной информацией для PDF
      */
     @Transactional(readOnly = true)
-    public List<Map<String, Object>> getDetailedSummaryByRegion() {
+    public List<WasteRegisterRegionDto> getDetailedSummaryByRegion() {
         log.info("Generating detailed summary report by region");
 
         List<Region> regions = regionRepository.findAll();
-        List<Map<String, Object>> summaryData = new ArrayList<>();
+        List<WasteRegisterRegionDto> summaryData = new ArrayList<>();
 
         for (Region region : regions) {
             // Находим города в регионе
@@ -84,7 +86,7 @@ public class ReportService {
                     .collect(Collectors.toList());
 
             // Собираем детальную информацию по объектам
-            List<Map<String, Object>> objectsDetails = new ArrayList<>();
+            List<WasteRegisterObjectDto> objectsDetails = new ArrayList<>();
             long objectCount = objectsInRegion.size();
             double totalWeight = 0;
             double totalSquare = 0;
@@ -102,51 +104,24 @@ public class ReportService {
                     totalSquare += ct.getSquare_for_year();
                 }
 
-                // Детальная информация по объекту
-                Map<String, Object> objectDetail = new HashMap<>();
-                objectDetail.put("objectName", object.getName_obj());
-                objectDetail.put("objectLocation", object.getPlace_obj());
-                objectDetail.put("ownerName", object.getName_own());
-                objectDetail.put("companyLocated", object.getCompany_located());
-                objectDetail.put("phonesLegal", joinPhonesByUrRole(object.getPhones(), true));
-                objectDetail.put("phonesOwner", joinPhonesByUrRole(object.getPhones(), false));
-                objectDetail.put(
-                        "phones",
-                        joinPhonesByUrRole(object.getPhones(), true)
-                );
-                objectDetail.put(
-                        "groupPlaceName",
-                        object.getId_group_place_save() != null
-                                ? object.getId_group_place_save().getName_group()
-                                : null
-                );
-                objectDetail.put("status", object.getStatus() ? "Активен" : "Неактивен");
-                objectDetail.put("registrationNumber", object.getId_registration());
-                objectDetail.put("payerIdentificationNumber", object.getPayer_indentification_number());
-                objectDetail.put("startUse", object.getStart_use());
-                objectDetail.put("square", object.getSquare());
-
-                // Получаем группы отходов для объекта
-                List<String> groups = getNameGroupsByObject(object);
-                objectDetail.put("wasteGroups", String.join(", ", groups));
-
-                objectsDetails.add(objectDetail);
+                objectsDetails.add(buildRegisterObjectDetail(object));
             }
 
-            Map<String, Object> regionSummary = new LinkedHashMap<>();
-            regionSummary.put("regionName", region.getName_region());
-            regionSummary.put("objectCount", objectCount);
-            regionSummary.put("totalWeight", totalWeight);
-            regionSummary.put("totalSquare", totalSquare);
-            regionSummary.put("objects", objectsDetails);
+            WasteRegisterRegionDto regionSummary = WasteRegisterRegionDto.builder()
+                    .regionName(region.getName_region())
+                    .objectCount(objectCount)
+                    .totalWeight(totalWeight)
+                    .totalSquare(totalSquare)
+                    .objects(objectsDetails)
+                    .build();
 
             summaryData.add(regionSummary);
         }
 
         // Сортируем по количеству объектов
         summaryData.sort((a, b) -> Long.compare(
-                (Long) b.get("objectCount"),
-                (Long) a.get("objectCount")
+                b.getObjectCount(),
+                a.getObjectCount()
         ));
 
         log.info("Generated detailed summary report with {} regions", summaryData.size());
@@ -475,6 +450,28 @@ public class ReportService {
                 .objectId(object.getId_object_place_trash())
                 .registrationNumber(object.getId_registration())
                 .status(object.getStatus())
+                .build();
+    }
+
+    private WasteRegisterObjectDto buildRegisterObjectDetail(ObjectPlaceTrash object) {
+        List<String> groups = getNameGroupsByObject(object);
+        return WasteRegisterObjectDto.builder()
+                .objectName(object.getName_obj())
+                .objectLocation(object.getPlace_obj())
+                .ownerName(object.getName_own())
+                .companyLocated(object.getCompany_located())
+                .phonesLegal(joinPhonesByUrRole(object.getPhones(), true))
+                .phonesOwner(joinPhonesByUrRole(object.getPhones(), false))
+                .phones(joinPhonesByUrRole(object.getPhones(), true))
+                .groupPlaceName(object.getId_group_place_save() != null
+                        ? object.getId_group_place_save().getName_group()
+                        : null)
+                .status(Boolean.TRUE.equals(object.getStatus()) ? "Активен" : "Неактивен")
+                .registrationNumber(object.getId_registration())
+                .payerIdentificationNumber(object.getPayer_indentification_number())
+                .startUse(object.getStart_use())
+                .square(object.getSquare())
+                .wasteGroups(String.join(", ", groups))
                 .build();
     }
 

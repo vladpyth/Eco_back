@@ -7,9 +7,12 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.PDPageContentStream.AppendMode;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
+import com.example.eco_service.dto.main_dto.WasteRegisterObjectDto;
+import com.example.eco_service.dto.main_dto.WasteRegisterRegionDto;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -17,7 +20,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -27,19 +29,20 @@ public class PdfReportGenerator {
     private static final float ROW_HEIGHT = 12f;
     private static final float HEADER_GAP = 14f;
     private static final PDRectangle LANDSCAPE_A4 = new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth());
+    private static final String FONT_CLASSPATH = "/fonts/DejaVuSans.ttf";
+    private static final String[] SYSTEM_FONT_PATHS = {
+            "C:/Windows/Fonts/arial.ttf",
+            "C:/Windows/Fonts/Arial.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+            "/Library/Fonts/Arial.ttf"
+    };
 
-    public byte[] generateDetailedReportByRegion(List<Map<String, Object>> summaryData) throws IOException {
+    public byte[] generateDetailedReportByRegion(List<WasteRegisterRegionDto> summaryData) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         try (PDDocument document = new PDDocument()) {
-            PDType0Font font;
-            try (InputStream fontStream = getClass().getResourceAsStream("/fonts/DejaVuSans.ttf")) {
-                if (fontStream != null) {
-                    font = PDType0Font.load(document, fontStream);
-                } else {
-                    font = PDType0Font.load(document, getClass().getResourceAsStream("/fonts/DejaVuSans.ttf"));
-                }
-            }
+            PDType0Font font = loadFont(document);
 
             PDPage page = new PDPage(LANDSCAPE_A4);
             document.addPage(page);
@@ -61,9 +64,9 @@ public class PdfReportGenerator {
             writeCenteredText(contentStream, page, font, 12, yPosition, "(хранение, захоронение)");
             yPosition -= 40;
 
-            for (Map<String, Object> region : summaryData) {
-                String regionName = (String) region.get("regionName");
-                List<Map<String, Object>> objects = (List<Map<String, Object>>) region.get("objects");
+            for (WasteRegisterRegionDto region : summaryData) {
+                String regionName = region.getRegionName();
+                List<WasteRegisterObjectDto> objects = region.getObjects();
                 String groupPlaceName = extractGroupPlaceName(objects);
 
                 if (yPosition < 120) {
@@ -102,7 +105,7 @@ public class PdfReportGenerator {
                 horizontalSeparators.add(yPosition);
 
                 if (objects != null && !objects.isEmpty()) {
-                    for (Map<String, Object> obj : objects) {
+                    for (WasteRegisterObjectDto obj : objects) {
                         if (yPosition < 70) {
                             // Дорисовываем внутреннюю сетку текущего фрагмента перед переносом.
                             List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
@@ -142,16 +145,16 @@ public class PdfReportGenerator {
                             horizontalSeparators.add(yPosition);
                         }
 
-                        Object rawLegal = obj.get("phonesLegal");
-                        if (rawLegal == null || String.valueOf(rawLegal).isBlank()) {
-                            rawLegal = obj.get("phones");
+                        String rawLegal = obj.getPhonesLegal();
+                        if (rawLegal == null || rawLegal.isBlank()) {
+                            rawLegal = obj.getPhones();
                         }
-                        Object rawOwner = obj.get("phonesOwner");
+                        String rawOwner = obj.getPhonesOwner();
                         int l1 = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, objectNameWithMeta(obj));
-                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.get("objectLocation")));
+                        int l2 = drawWrappedText(contentStream, font, 8, col2, yPosition, colWidth - 8, getValue(obj.getObjectLocation()));
                         int l3 = drawWrappedText(contentStream, font, 8, col3, yPosition, colWidth - 8, getValue(rawOwner));
-                        int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.get("ownerName")));
-                        int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.get("companyLocated")));
+                        int l4 = drawWrappedText(contentStream, font, 8, col4, yPosition, colWidth - 8, getValue(obj.getOwnerName()));
+                        int l5 = drawWrappedText(contentStream, font, 8, col5, yPosition, colWidth - 8, getValue(obj.getCompanyLocated()));
                         int l6 = drawWrappedText(contentStream, font, 8, col6, yPosition, colWidth - 8, getValue(rawLegal));
                         int rowLines = Math.max(Math.max(Math.max(l1, l2), Math.max(l3, l4)), Math.max(l5, l6));
                         yPosition -= (ROW_HEIGHT * rowLines);
@@ -202,26 +205,48 @@ public class PdfReportGenerator {
         return baos.toByteArray();
     }
 
+    private PDType0Font loadFont(PDDocument document) throws IOException {
+        try (InputStream classpathFont = getClass().getResourceAsStream(FONT_CLASSPATH)) {
+            if (classpathFont != null) {
+                return PDType0Font.load(document, classpathFont);
+            }
+        }
+
+        for (String fontPath : SYSTEM_FONT_PATHS) {
+            java.io.File fontFile = new java.io.File(fontPath);
+            if (fontFile.isFile()) {
+                try (InputStream systemFont = new FileInputStream(fontFile)) {
+                    log.info("Loading PDF font from {}", fontPath);
+                    return PDType0Font.load(document, systemFont);
+                }
+            }
+        }
+
+        throw new IOException("PDF font not found. Add DejaVuSans.ttf to src/main/resources/fonts/ or install Arial/DejaVuSans on the host.");
+    }
+
     private String getValue(Object value) {
         if (value == null) return "—";
-        String str = String.valueOf(value);
+        String str = sanitizePdfText(String.valueOf(value));
         return str.isEmpty() || str.equals("null") ? "—" : str;
     }
 
     private void writeText(PDPageContentStream contentStream, PDType0Font font, int size,
                            float x, float y, String text) throws IOException {
+        String safeText = sanitizePdfText(text);
         contentStream.beginText();
         contentStream.setFont(font, size);
         contentStream.newLineAtOffset(x, y);
-        contentStream.showText(text);
+        contentStream.showText(safeText);
         contentStream.endText();
     }
 
     private void writeCenteredText(PDPageContentStream contentStream, PDPage page, PDType0Font font,
                                    int size, float y, String text) throws IOException {
-        float textWidth = font.getStringWidth(text) / 1000 * size;
+        String safeText = sanitizePdfText(text);
+        float textWidth = font.getStringWidth(safeText) / 1000 * size;
         float x = (page.getMediaBox().getWidth() - textWidth) / 2f;
-        writeText(contentStream, font, size, x, y, text);
+        writeText(contentStream, font, size, x, y, safeText);
     }
 
     private float pageTop(PDPage page) {
@@ -248,10 +273,10 @@ public class PdfReportGenerator {
     }
 
     /** Наименование объекта + под ним реестровый номер и УНП. */
-    private String objectNameWithMeta(Map<String, Object> obj) {
-        String name = getValue(obj.get("objectName"));
-        String reg = getValue(obj.get("registrationNumber"));
-        String payer = getValue(obj.get("payerIdentificationNumber"));
+    private String objectNameWithMeta(WasteRegisterObjectDto obj) {
+        String name = getValue(obj.getObjectName());
+        String reg = getValue(obj.getRegistrationNumber());
+        String payer = getValue(obj.getPayerIdentificationNumber());
         return name + "\nРеестровый номер: " + reg + "\nУНП: " + payer;
     }
 
@@ -300,7 +325,7 @@ public class PdfReportGenerator {
 
     private List<String> wrapLines(PDType0Font font, int size, String text, float maxWidth) throws IOException {
         java.util.ArrayList<String> out = new java.util.ArrayList<>();
-        String normalized = text == null ? "—" : text.replace("\r", "");
+        String normalized = sanitizePdfText(text);
         String[] forcedLines = normalized.split("\n", -1);
         for (String forced : forcedLines) {
             String part = forced.trim();
@@ -327,13 +352,31 @@ public class PdfReportGenerator {
         return out;
     }
 
-    private String extractGroupPlaceName(List<Map<String, Object>> objects) {
+    private String sanitizePdfText(String text) {
+        if (text == null) {
+            return "—";
+        }
+        String normalized = text
+                .replace("\r\n", "\n")
+                .replace('\r', '\n')
+                .replace('\t', ' ');
+        StringBuilder result = new StringBuilder(normalized.length());
+        for (int i = 0; i < normalized.length(); i++) {
+            char ch = normalized.charAt(i);
+            if (ch == '\n' || !Character.isISOControl(ch)) {
+                result.append(ch);
+            }
+        }
+        return result.toString().trim();
+    }
+
+    private String extractGroupPlaceName(List<WasteRegisterObjectDto> objects) {
         if (objects == null || objects.isEmpty()) return "—";
         Set<String> uniq = new LinkedHashSet<>();
-        for (Map<String, Object> obj : objects) {
-            Object raw = obj.get("groupPlaceName");
+        for (WasteRegisterObjectDto obj : objects) {
+            String raw = obj.getGroupPlaceName();
             if (raw == null) continue;
-            String v = String.valueOf(raw).trim();
+            String v = raw.trim();
             if (!v.isEmpty() && !"null".equalsIgnoreCase(v)) uniq.add(v);
         }
         if (uniq.isEmpty()) return "—";

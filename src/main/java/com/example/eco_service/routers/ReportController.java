@@ -3,7 +3,9 @@ package com.example.eco_service.routers;
 
 import com.example.eco_service.config.PdfReportGenerator;
 import com.example.eco_service.dto.main_dto.WasteReportDto;
+import com.example.eco_service.dto.main_dto.WasteRegisterRegionDto;
 import com.example.eco_service.services.ReportService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -28,11 +30,13 @@ public class ReportController {
     private final ReportService reportService;
     private final PdfReportGenerator pdfReportGenerator;
 
+
     /**
      * Получить полный отчет по всем объектам
      * GET /api/reports/waste/full
      */
-    @GetMapping("/waste/full")
+    @GetMapping(value = "/waste/full", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Получить полный отчет по всем объектам (JSON)")
     public ResponseEntity<List<WasteReportDto>> getFullWasteReport() {
         log.info("REST request to get full waste report");
         List<WasteReportDto> report = reportService.getFullWasteReport();
@@ -40,14 +44,26 @@ public class ReportController {
     }
 
     /**
-     * Получить отчет только по активным объектам
+     * Получить детальный реестр по регионам (те же данные, что и в PDF)
      * GET /api/reports/waste/active
      */
-    @GetMapping("/waste/active")
-    public ResponseEntity<List<WasteReportDto>> getActiveWasteReport() {
-        log.info("REST request to get active waste report");
-        List<WasteReportDto> report = reportService.getActiveWasteReport();
+    @GetMapping(value = "/waste/active", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Получить детальный реестр по регионам (JSON, как в PDF)")
+    public ResponseEntity<List<WasteRegisterRegionDto>> getActiveWasteReport() {
+        log.info("REST request to get detailed waste register as JSON");
+        List<WasteRegisterRegionDto> report = reportService.getDetailedSummaryByRegion();
         return ResponseEntity.ok(report);
+    }
+
+    /**
+     * Получить детальный реестр по регионам (JSON)
+     * GET /api/reports/waste/detailed/export/json
+     */
+    @GetMapping(value = "/waste/detailed/export/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Экспортировать детальный реестр в JSON (как PDF)")
+    public ResponseEntity<List<WasteRegisterRegionDto>> exportDetailedReportToJson() {
+        log.info("REST request to export detailed waste report to JSON");
+        return ResponseEntity.ok(reportService.getDetailedSummaryByRegion());
     }
 
     /**
@@ -134,13 +150,13 @@ public class ReportController {
         log.info("REST request to export detailed waste report to PDF");
 
         try {
-            List<Map<String, Object>> summary = reportService.getDetailedSummaryByRegion();
+            List<WasteRegisterRegionDto> summary = reportService.getDetailedSummaryByRegion();
             log.info("Retrieved summary data with {} regions", summary.size());
 
-            for (Map<String, Object> region : summary) {
+            for (WasteRegisterRegionDto region : summary) {
                 log.info("Region: {}, Objects: {}",
-                        region.get("regionName"),
-                        region.get("objectCount"));
+                        region.getRegionName(),
+                        region.getObjectCount());
             }
 
             byte[] pdfBytes = pdfReportGenerator.generateDetailedReportByRegion(summary);
@@ -168,30 +184,36 @@ public class ReportController {
         Map<String, Object> result = new HashMap<>();
 
         try {
-            List<Map<String, Object>> summary = reportService.getDetailedSummaryByRegion();
+            List<WasteRegisterRegionDto> summary = reportService.getDetailedSummaryByRegion();
             result.put("regionsCount", summary.size());
 
             List<Map<String, Object>> debugData = new ArrayList<>();
-            for (Map<String, Object> region : summary) {
+            for (WasteRegisterRegionDto region : summary) {
                 Map<String, Object> regionDebug = new HashMap<>();
-                regionDebug.put("regionName", region.get("regionName"));
-                regionDebug.put("objectCount", region.get("objectCount"));
-                regionDebug.put("totalWeight", region.get("totalWeight"));
-                regionDebug.put("totalSquare", region.get("totalSquare"));
+                regionDebug.put("regionName", region.getRegionName());
+                regionDebug.put("objectCount", region.getObjectCount());
+                regionDebug.put("totalWeight", region.getTotalWeight());
+                regionDebug.put("totalSquare", region.getTotalSquare());
 
-                List<Map<String, Object>> objects = (List<Map<String, Object>>) region.get("objects");
-                if (objects != null && !objects.isEmpty()) {
+                if (region.getObjects() != null && !region.getObjects().isEmpty()) {
                     List<Map<String, Object>> objectsDebug = new ArrayList<>();
-                    for (Map<String, Object> obj : objects) {
+                    region.getObjects().forEach(obj -> {
                         Map<String, Object> objDebug = new HashMap<>();
-                        objDebug.put("objectName", obj.get("objectName"));
-                        objDebug.put("objectLocation", obj.get("objectLocation"));
-                        objDebug.put("ownerName", obj.get("ownerName"));
-                        objDebug.put("companyLocated", obj.get("companyLocated"));
-                        objDebug.put("status", obj.get("status"));
-                        objDebug.put("wasteGroups", obj.get("wasteGroups"));
+                        objDebug.put("objectName", obj.getObjectName());
+                        objDebug.put("objectLocation", obj.getObjectLocation());
+                        objDebug.put("ownerName", obj.getOwnerName());
+                        objDebug.put("companyLocated", obj.getCompanyLocated());
+                        objDebug.put("phonesLegal", obj.getPhonesLegal());
+                        objDebug.put("phonesOwner", obj.getPhonesOwner());
+                        objDebug.put("groupPlaceName", obj.getGroupPlaceName());
+                        objDebug.put("status", obj.getStatus());
+                        objDebug.put("registrationNumber", obj.getRegistrationNumber());
+                        objDebug.put("payerIdentificationNumber", obj.getPayerIdentificationNumber());
+                        objDebug.put("startUse", obj.getStartUse());
+                        objDebug.put("square", obj.getSquare());
+                        objDebug.put("wasteGroups", obj.getWasteGroups());
                         objectsDebug.add(objDebug);
-                    }
+                    });
                     regionDebug.put("objects", objectsDebug);
                 }
                 debugData.add(regionDebug);
