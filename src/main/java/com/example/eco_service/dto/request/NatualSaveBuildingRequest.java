@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class NatualSaveBuildingRequest {
 
     @Schema(description = "Название", example = "Здание охраны природы")
-    @Size(max = 150, message = "Максимум 150 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String name;
 }

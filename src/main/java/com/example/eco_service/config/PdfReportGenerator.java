@@ -17,9 +17,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -65,9 +67,9 @@ public class PdfReportGenerator {
             yPosition -= 40;
 
             for (WasteRegisterRegionDto region : summaryData) {
-                String regionName = region.getRegionName();
+                String regionName = formatRegionTitle(region.getRegionName());
                 List<WasteRegisterObjectDto> objects = region.getObjects();
-                String groupPlaceName = extractGroupPlaceName(objects);
+                Map<String, List<WasteRegisterObjectDto>> byGroup = groupObjectsByPlaceSave(objects);
 
                 if (yPosition < 120) {
                     contentStream.close();
@@ -85,29 +87,58 @@ public class PdfReportGenerator {
                     colWidth = columnWidth(page);
                 }
 
-                // Сначала область (по центру)
+                // Область
                 writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
-                yPosition -= HEADER_GAP;
-                writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
-                yPosition -= (HEADER_GAP + 6f);
-                float tableTopY = yPosition;
-                List<Float> horizontalSeparators = new ArrayList<>();
+                yPosition -= (HEADER_GAP + 4f);
 
-                // Затем заголовки столбцов
-                int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
-                int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
-                int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Телефон объекта");
-                int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование заявителя");
-                int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Адрес заявителя");
-                int h6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Телефон заявителя");
-                int headerLines = Math.max(Math.max(Math.max(h1, h2), Math.max(h3, h4)), Math.max(h5, h6));
-                yPosition -= (ROW_HEIGHT * headerLines) + 2;
-                horizontalSeparators.add(yPosition);
+                if (byGroup.isEmpty()) {
+                    writeCenteredText(contentStream, page, font, 10, yPosition, "—");
+                    yPosition -= HEADER_GAP;
+                    int noObjLines = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8,
+                            "Нет объектов в данной области");
+                    yPosition -= (ROW_HEIGHT * noObjLines) + HEADER_GAP;
+                    continue;
+                }
 
-                if (objects != null && !objects.isEmpty()) {
-                    for (WasteRegisterObjectDto obj : objects) {
+                for (Map.Entry<String, List<WasteRegisterObjectDto>> entry : byGroup.entrySet()) {
+                    String groupPlaceName = entry.getKey();
+                    List<WasteRegisterObjectDto> groupObjects = entry.getValue();
+
+                    if (yPosition < 120) {
+                        contentStream.close();
+                        page = new PDPage(LANDSCAPE_A4);
+                        document.addPage(page);
+                        contentStream = new PDPageContentStream(document, page);
+                        yPosition = pageTop(page);
+                        cols = columnStarts(page);
+                        col1 = cols[0];
+                        col2 = cols[1];
+                        col3 = cols[2];
+                        col4 = cols[3];
+                        col5 = cols[4];
+                        col6 = cols[5];
+                        colWidth = columnWidth(page);
+                        writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
+                        yPosition -= (HEADER_GAP + 4f);
+                    }
+
+                    writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
+                    yPosition -= (HEADER_GAP + 6f);
+                    float tableTopY = yPosition;
+                    List<Float> horizontalSeparators = new ArrayList<>();
+
+                    int h1 = drawWrappedText(contentStream, font, 9, col1, yPosition, colWidth - 8, "Наименование объекта");
+                    int h2 = drawWrappedText(contentStream, font, 9, col2, yPosition, colWidth - 8, "Местонахождение объекта");
+                    int h3 = drawWrappedText(contentStream, font, 9, col3, yPosition, colWidth - 8, "Телефон объекта");
+                    int h4 = drawWrappedText(contentStream, font, 9, col4, yPosition, colWidth - 8, "Наименование заявителя");
+                    int h5 = drawWrappedText(contentStream, font, 9, col5, yPosition, colWidth - 8, "Адрес заявителя");
+                    int h6 = drawWrappedText(contentStream, font, 9, col6, yPosition, colWidth - 8, "Телефон заявителя");
+                    int headerLines = Math.max(Math.max(Math.max(h1, h2), Math.max(h3, h4)), Math.max(h5, h6));
+                    yPosition -= (ROW_HEIGHT * headerLines) + 2;
+                    horizontalSeparators.add(yPosition);
+
+                    for (WasteRegisterObjectDto obj : groupObjects) {
                         if (yPosition < 70) {
-                            // Дорисовываем внутреннюю сетку текущего фрагмента перед переносом.
                             List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
                             if (!separatorsToDraw.isEmpty()) {
                                 separatorsToDraw.remove(separatorsToDraw.size() - 1);
@@ -127,7 +158,6 @@ public class PdfReportGenerator {
                             col6 = cols[5];
                             colWidth = columnWidth(page);
 
-                            // На новых страницах без общего заголовка; повторяем только секцию
                             writeCenteredText(contentStream, page, font, 12, yPosition, getValue(regionName));
                             yPosition -= HEADER_GAP;
                             writeCenteredText(contentStream, page, font, 10, yPosition, getValue(groupPlaceName));
@@ -160,20 +190,14 @@ public class PdfReportGenerator {
                         yPosition -= (ROW_HEIGHT * rowLines);
                         horizontalSeparators.add(yPosition);
                     }
-                } else {
-                    int noObjLines = drawWrappedText(contentStream, font, 8, col1, yPosition, colWidth - 8, "Нет объектов в данной области");
-                    yPosition -= ROW_HEIGHT * noObjLines;
-                }
 
-                // Рисуем только внутреннюю сетку: без внешних рамок слева/справа/снизу/сверху.
-                List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
-                if (objects != null && !objects.isEmpty() && !separatorsToDraw.isEmpty()) {
-                    // Последняя граница это нижний край таблицы — не рисуем.
-                    separatorsToDraw.remove(separatorsToDraw.size() - 1);
+                    List<Float> separatorsToDraw = new ArrayList<>(horizontalSeparators);
+                    if (!separatorsToDraw.isEmpty()) {
+                        separatorsToDraw.remove(separatorsToDraw.size() - 1);
+                    }
+                    drawInnerGrid(contentStream, cols, colWidth, tableTopY, yPosition, separatorsToDraw);
+                    yPosition -= HEADER_GAP;
                 }
-                drawInnerGrid(contentStream, cols, colWidth, tableTopY, yPosition, separatorsToDraw);
-
-                yPosition -= HEADER_GAP;
             }
 
             contentStream.close();
@@ -368,6 +392,38 @@ public class PdfReportGenerator {
             }
         }
         return result.toString().trim();
+    }
+
+    /** «Минская» → «Минская область»; «г. Минск» / «Минск» → «город Минск». */
+    private String formatRegionTitle(String raw) {
+        if (raw == null || raw.isBlank() || "null".equalsIgnoreCase(raw.trim())) {
+            return "—";
+        }
+        String name = raw.trim();
+        String lower = name.toLowerCase().replace('ё', 'е');
+        if (lower.equals("минск") || lower.equals("г. минск") || lower.equals("г минск")
+                || lower.equals("город минск")) {
+            return "город Минск";
+        }
+        if (lower.endsWith(" область")) {
+            return name;
+        }
+        return name + " область";
+    }
+
+    private Map<String, List<WasteRegisterObjectDto>> groupObjectsByPlaceSave(List<WasteRegisterObjectDto> objects) {
+        Map<String, List<WasteRegisterObjectDto>> byGroup = new LinkedHashMap<>();
+        if (objects == null) {
+            return byGroup;
+        }
+        for (WasteRegisterObjectDto obj : objects) {
+            String raw = obj.getGroupPlaceName();
+            String key = (raw == null || raw.isBlank() || "null".equalsIgnoreCase(raw.trim()))
+                    ? "—"
+                    : raw.trim();
+            byGroup.computeIfAbsent(key, k -> new ArrayList<>()).add(obj);
+        }
+        return byGroup;
     }
 
     private String extractGroupPlaceName(List<WasteRegisterObjectDto> objects) {

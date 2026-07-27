@@ -56,6 +56,22 @@ public class ReportController {
     }
 
     /**
+     * Плоский реестр для публичного portal с пагинацией.
+     * GET /api/reports/waste/portal?page=0&size=50&q=&sort=objectName&dir=asc
+     */
+    @GetMapping(value = "/waste/portal", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Публичный реестр РХЗО (плоско, с пагинацией)")
+    public ResponseEntity<com.example.eco_service.dto.response.PageResponse<com.example.eco_service.dto.main_dto.PortalRhzoRowDto>> getPortalWasteTable(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        log.info("REST request portal waste table page={} size={} q={}", page, size, q);
+        return ResponseEntity.ok(reportService.getPortalTablePaged(page, size, q, sort, dir));
+    }
+
+    /**
      * Получить детальный реестр по регионам (JSON)
      * GET /api/reports/waste/detailed/export/json
      */

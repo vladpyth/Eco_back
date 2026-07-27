@@ -21,7 +21,7 @@ public class TypeTrash1 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_type_trash1;
 
-    @Column(nullable = false,unique = true,  length = 150)
+    @Column(nullable = false,unique = true,  length = 255)
     private String name_type_trash1;
 
 }

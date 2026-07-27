@@ -36,7 +36,7 @@ public class MagazinTrashRequest {
 
     @Schema(description = "Название отходов", example = "ТБО смешанные")
     @NotBlank(message = "nameTrash обязателен")
-    @Size(max = 50, message = "Максимум 50 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String nameTrash;
 
     @Schema(description = "\"block 1", example = "1")

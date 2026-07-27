@@ -3,6 +3,7 @@ package com.example.eco_service.repositories;
 
 import com.example.eco_service.entities.NatualSaveBuildCount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InterfNatualSaveBuildCount extends JpaRepository<NatualSaveBuildCount, Long>, RevisionRepository<NatualSaveBuildCount, Long, Integer> {
+public interface InterfNatualSaveBuildCount extends JpaRepository<NatualSaveBuildCount, Long>, JpaSpecificationExecutor<NatualSaveBuildCount>, RevisionRepository<NatualSaveBuildCount, Long, Integer> {
     @Query("select c from NatualSaveBuildCount c where c.id_object_place_trash.id_object_place_trash = :objectPlaceId")
     List<NatualSaveBuildCount> findAllByObjectPlaceId(@Param("objectPlaceId") Long objectPlaceId);
 

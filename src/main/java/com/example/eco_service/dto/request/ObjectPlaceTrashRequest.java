@@ -34,6 +34,9 @@ public class ObjectPlaceTrashRequest {
     @Schema(description = "ID города", example = "1")
     private Long citiesId;
 
+    @Schema(description = "ID области (региона)", example = "1")
+    private Long regionId;
+
     @Schema(description = "ID группы места сохранения", example = "1")
     private Long groupPlaceSaveId;
 

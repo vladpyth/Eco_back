@@ -25,7 +25,7 @@ public class CleanerBuildsRequest {
 
     @Schema(description = "Название объекта", example = "Очистное сооружение")
     @NotBlank(message = "nameObject обязателен")
-    @Size(max = 50, message = "Максимум 50 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String nameObject;
 
     @Schema(description = "Год начала эксплуатации", example = "2010")

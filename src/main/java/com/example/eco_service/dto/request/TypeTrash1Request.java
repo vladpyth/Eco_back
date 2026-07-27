@@ -15,6 +15,6 @@ public class TypeTrash1Request {
 
     @Schema(description = "Название типа отходов", example = "Твёрдые коммунальные")
     @NotBlank(message = "nameTypeTrash1 обязателен")
-    @Size(max = 150, message = "Максимум 150 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String nameTypeTrash1;
 }

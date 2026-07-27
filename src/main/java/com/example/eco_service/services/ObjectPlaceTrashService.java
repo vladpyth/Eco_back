@@ -3,6 +3,7 @@ package com.example.eco_service.services;
 import com.example.eco_service.dto.request.ObjectAroundBuildLinkRequest;
 import com.example.eco_service.dto.request.ObjectNatualSaveBuildLinkRequest;
 import com.example.eco_service.dto.request.ObjectPlaceTrashRequest;
+import com.example.eco_service.dto.response.PageResponse;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class ObjectPlaceTrashService {
 
     // Репозитории для OneToOne связей
     private final InterfCities citiesRepository;
+    private final InterfRegion regionRepository;
     private final InterfGroupPlaceSave groupPlaceSaveRepository;
     private final InterfStorageScheme storageSchemeRepository;
     private final InterfGruopsDegree gruopsDegreeRepository;
@@ -57,6 +59,24 @@ public class ObjectPlaceTrashService {
     public List<ObjectPlaceTrash> findAllObjectPlaceTrash() {
         log.info("Fetching all ObjectPlaceTrash without pagination");
         return objectPlaceTrashRepository.findAll();
+    }
+
+    /** page+size+q+sort+dir — как в РОИО MagasinFactory.
+     * includeExcluded=true — показывать исключённые (status=true); иначе скрывать их. */
+    @Transactional(readOnly = true)
+    public PageResponse<ObjectPlaceTrash> findAllObjectPlaceTrashPaged(
+            Integer page, Integer size, String q, String sort, String dir, Boolean includeExcluded) {
+        log.info("Fetching ObjectPlaceTrash paged page={} size={} q={} includeExcluded={}",
+                page, size, q, includeExcluded);
+        Specification<ObjectPlaceTrash> spec =
+                PageSupport.textSearch(q, "id_object_place_trash", sort, dir, "id_registration", true);
+        if (!Boolean.TRUE.equals(includeExcluded)) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(cb.isNull(root.get("status")), cb.isFalse(root.get("status"))));
+        }
+        return PageResponse.from(objectPlaceTrashRepository.findAll(
+                spec,
+                PageSupport.pageable(page, size, "id_object_place_trash")));
     }
 
     // ==================== READ by ID ====================
@@ -180,6 +200,16 @@ public class ObjectPlaceTrashService {
                 Cities cities = citiesRepository.findById(request.getCitiesId())
                         .orElseThrow(() -> new RuntimeException("Cities not found with id: " + request.getCitiesId()));
                 entity.setId_cities(cities);
+            }
+        }
+
+        if (request.getRegionId() != null) {
+            if (request.getRegionId() < 0) {
+                entity.setId_region(null);
+            } else {
+                Region region = regionRepository.findById(request.getRegionId())
+                        .orElseThrow(() -> new RuntimeException("Region not found with id: " + request.getRegionId()));
+                entity.setId_region(region);
             }
         }
 
@@ -333,10 +363,16 @@ public class ObjectPlaceTrashService {
         entity.setRegister(req.getRegister());
         entity.setDate_register(req.getDateRegister());
 
-        if (req.getCitiesId() != null) {
+        if (req.getCitiesId() != null && req.getCitiesId() > 0) {
             Cities cities = citiesRepository.findById(req.getCitiesId())
                     .orElseThrow(() -> new RuntimeException("Cities not found with id: " + req.getCitiesId()));
             entity.setId_cities(cities);
+        }
+
+        if (req.getRegionId() != null && req.getRegionId() > 0) {
+            Region region = regionRepository.findById(req.getRegionId())
+                    .orElseThrow(() -> new RuntimeException("Region not found with id: " + req.getRegionId()));
+            entity.setId_region(region);
         }
 
         if (req.getGroupPlaceSaveId() != null) {
@@ -361,7 +397,7 @@ public class ObjectPlaceTrashService {
 
         entity.setName_obj(req.getNameObj());
         entity.setName_own(req.getNameOwn());
-        entity.setStart_use(req.getStartUse() != null ? req.getStartUse() : 0);
+        entity.setStart_use(req.getStartUse());
         entity.setServise_life(req.getServiseLife());
         entity.setCompany_located(req.getCompanyLocated());
         entity.setPlace_obj(req.getPlaceObj());
@@ -370,9 +406,9 @@ public class ObjectPlaceTrashService {
         entity.setEco_pasport(req.getEcoPasport());
         entity.setPrava_place(req.getPravaPlace());
         entity.setConfirmation_use(req.getConfirmationUse());
-        entity.setSquare(req.getSquare() != null ? req.getSquare() : 0f);
-        entity.setUse_square(req.getUseSquare() != null ? req.getUseSquare() : 0f);
-        entity.setTrash_square(req.getTrashSquare() != null ? req.getTrashSquare() : 0f);
+        entity.setSquare(req.getSquare());
+        entity.setUse_square(req.getUseSquare());
+        entity.setTrash_square(req.getTrashSquare());
         entity.setProject_power(req.getProjectPower());
         entity.setFacticheskay_power(req.getFacticheskayPower());
         entity.setAccomulated_trash(req.getAccomulatedTrash());

@@ -2,6 +2,7 @@ package com.example.eco_service.repositories;
 
 import com.example.eco_service.entities.NumberPhoneCount;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface InterfNumberPhoneCount extends JpaRepository<NumberPhoneCount, Long>, RevisionRepository<NumberPhoneCount, Long, Integer> {
+public interface InterfNumberPhoneCount extends JpaRepository<NumberPhoneCount, Long>, JpaSpecificationExecutor<NumberPhoneCount>, RevisionRepository<NumberPhoneCount, Long, Integer> {
     @Query("select c from NumberPhoneCount c where c.id_object_place_trash.id_object_place_trash = :objectPlaceId")
     List<NumberPhoneCount> findAllByObjectPlaceId(@Param("objectPlaceId") Long objectPlaceId);
 

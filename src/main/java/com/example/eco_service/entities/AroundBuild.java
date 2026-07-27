@@ -20,7 +20,7 @@ public class AroundBuild {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_around_build;
 
-    @Column(length = 150)
+    @Column(length = 255)
     private String name;
 
 }

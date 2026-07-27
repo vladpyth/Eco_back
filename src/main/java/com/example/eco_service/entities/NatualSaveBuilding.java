@@ -20,7 +20,7 @@ public class NatualSaveBuilding {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_natual_save_build;
 
-    @Column(length = 150)
+    @Column(length = 255)
     private String name;
 
 }

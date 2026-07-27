@@ -5,6 +5,7 @@ import com.example.eco_service.repositories.*;
 import com.example.eco_service.dto.response.EchoResponse;
 import com.example.eco_service.services.CRUDServices;
 import com.example.eco_service.services.ObjectPlaceTrashService;
+import com.example.eco_service.services.PageSupport;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,9 +44,16 @@ public class MainRouters {
     }
 
     @GetMapping("district")
-    public ResponseEntity<List<District>> findAllDistricts() {
-        List<District> entities = districtService.findAllDistricts();
-        return ResponseEntity.ok(entities);
+    public ResponseEntity<?> findAllDistricts(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(districtService.findAllDistrictsPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(districtService.findAllDistricts());
     }
 
     @GetMapping("district/{id}")
@@ -77,10 +85,17 @@ public class MainRouters {
     }
 
     @GetMapping("around-build")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<AroundBuild>> findAllAroundBuild() {
-        List<AroundBuild> entities = aroundBuildService.findAllAroundBuild();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllAroundBuild(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(aroundBuildService.findAllAroundBuildPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(aroundBuildService.findAllAroundBuild());
     }
 
     @GetMapping("around-build/{id}")
@@ -116,10 +131,17 @@ public class MainRouters {
     }
 
     @GetMapping("characteristic-trash")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<CharacteristicTrash>> findAllCharacteristicTrash() {
-        List<CharacteristicTrash> entities = characteristicTrashService.findAllCharacteristicTrash();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllCharacteristicTrash(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(characteristicTrashService.findAllCharacteristicTrashPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(characteristicTrashService.findAllCharacteristicTrash());
     }
 
     @GetMapping("characteristic-trash/{id}")
@@ -155,10 +177,17 @@ public class MainRouters {
     }
 
     @GetMapping("cities")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<Cities>> findAllCities() {
-        List<Cities> entities = citiesService.findAllCities();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllCities(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(citiesService.findAllCitiesPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(citiesService.findAllCities());
     }
 
     @GetMapping("cities/{id}")
@@ -194,10 +223,17 @@ public class MainRouters {
     }
 
     @GetMapping("classDanger")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<ClassDanger>> findAllClassDanger() {
-        List<ClassDanger> entities = classDangerService.findAllClassDanger();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllClassDanger(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(classDangerService.findAllClassDangerPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(classDangerService.findAllClassDanger());
     }
 
     @GetMapping("classDanger/{id}")
@@ -233,10 +269,17 @@ public class MainRouters {
     }
 
     @GetMapping("cleaner-builds")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<CleanerBuilds>> findAllCleanerBuilds() {
-        List<CleanerBuilds> entities = cleanerBuildsService.findAllCleanerBuilds();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllCleanerBuilds(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(cleanerBuildsService.findAllCleanerBuildsPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(cleanerBuildsService.findAllCleanerBuilds());
     }
 
     @GetMapping("cleaner-builds/{id}")
@@ -272,10 +315,17 @@ public class MainRouters {
     }
 
     @GetMapping("group-place-save")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<GroupPlaceSave>> findAllGroupPlaceSave() {
-        List<GroupPlaceSave> entities = groupPlaceSaveService.findAllGroupPlaceSave();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllGroupPlaceSave(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(groupPlaceSaveService.findAllGroupPlaceSavePaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(groupPlaceSaveService.findAllGroupPlaceSave());
     }
 
     @GetMapping("group-place-save/{id}")
@@ -309,10 +359,17 @@ public class MainRouters {
     }
 
     @GetMapping("gruops-degree")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<GruopsDegree>> findAllGruopsDegree() {
-        List<GruopsDegree> entities = gruopsDegreeService.findAllGruopsDegree();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllGruopsDegree(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(gruopsDegreeService.findAllGruopsDegreePaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(gruopsDegreeService.findAllGruopsDegree());
     }
 
     @GetMapping("gruops-degree/{id}")
@@ -347,10 +404,17 @@ public class MainRouters {
     }
 
     @GetMapping("level-trash")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<LevelTrash>> findAllLevelTrash() {
-        List<LevelTrash> entities = levelTrashService.findAllLevelTrash();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllLevelTrash(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(levelTrashService.findAllLevelTrashPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(levelTrashService.findAllLevelTrash());
     }
 
     @GetMapping("level-trash/{id}")
@@ -385,10 +449,17 @@ public class MainRouters {
     }
 
     @GetMapping("magazin-trash")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<MagazinTrash>> findAllMagazinTrash() {
-        List<MagazinTrash> entities = magazinTrashService.findAllMagazinTrash();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllMagazinTrash(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(magazinTrashService.findAllMagazinTrashPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(magazinTrashService.findAllMagazinTrash());
     }
 
     @GetMapping("magazin-trash/{id}")
@@ -422,10 +493,17 @@ public class MainRouters {
     }
 
     @GetMapping("name-group")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<NameGroup>> findAllNameGroup() {
-        List<NameGroup> entities = nameGroupService.findAllNameGroup();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllNameGroup(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(nameGroupService.findAllNameGroupPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(nameGroupService.findAllNameGroup());
     }
 
     @GetMapping("name-group/{id}")
@@ -460,10 +538,17 @@ public class MainRouters {
     }
 
     @GetMapping("natual-save-building")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<NatualSaveBuilding>> findAllNatualSaveBuilding() {
-        List<NatualSaveBuilding> entities = natualSaveBuildingService.findAllNatualSaveBuilding();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllNatualSaveBuilding(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(natualSaveBuildingService.findAllNatualSaveBuildingPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(natualSaveBuildingService.findAllNatualSaveBuilding());
     }
 
     @GetMapping("natual-save-building/{id}")
@@ -497,10 +582,17 @@ public class MainRouters {
     }
 
     @GetMapping("number-phone")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<NumberPhone>> findAllNumberPhone() {
-        List<NumberPhone> entities = numberPhoneService.findAllNumberPhone();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllNumberPhone(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(numberPhoneService.findAllNumberPhonePaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(numberPhoneService.findAllNumberPhone());
     }
 
     @GetMapping("number-phone/{id}")
@@ -535,10 +627,17 @@ public class MainRouters {
     }
 
     @GetMapping("physical-state")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<PhysicalState>> findAllPhysicalState() {
-        List<PhysicalState> entities = physicalStateService.findAllPhysicalState();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllPhysicalState(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(physicalStateService.findAllPhysicalStatePaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(physicalStateService.findAllPhysicalState());
     }
 
     @GetMapping("physical-state/{id}")
@@ -576,10 +675,17 @@ public class MainRouters {
     }
 
     @GetMapping("region")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<Region>> findAllRegion() {
-        List<Region> entities = regionService.findAllRegion();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllRegion(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(regionService.findAllRegionPaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(regionService.findAllRegion());
     }
 
     @GetMapping("region/{id}")
@@ -615,10 +721,17 @@ public class MainRouters {
     }
 
     @GetMapping("storage-scheme")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<StorageScheme>> findAllStorageScheme() {
-        List<StorageScheme> entities = storageSchemeService.findAllStorageScheme();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllStorageScheme(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(storageSchemeService.findAllStorageSchemePaged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(storageSchemeService.findAllStorageScheme());
     }
 
     @GetMapping("storage-scheme/{id}")
@@ -654,10 +767,17 @@ public class MainRouters {
     }
 
     @GetMapping("type-trash1")
-    @Operation(summary = "Получить все записи")
-    public ResponseEntity<List<TypeTrash1>> findAllTypeTrash1() {
-        List<TypeTrash1> entities = typeTrash1Service.findAllTypeTrash1();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllTypeTrash1(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(typeTrash1Service.findAllTypeTrash1Paged(page, size, q, sort, dir));
+        }
+        return ResponseEntity.ok(typeTrash1Service.findAllTypeTrash1());
     }
 
     @GetMapping("type-trash1/{id}")
@@ -701,10 +821,19 @@ public class MainRouters {
     }
 
     @GetMapping("object-place-trash")
-    @Operation(summary = "Получить все записи без пагинации")
-    public ResponseEntity<List<ObjectPlaceTrash>> findAllObjectPlaceTrash() {
-        List<ObjectPlaceTrash> entities = objectPlaceTrashService.findAllObjectPlaceTrash();
-        return ResponseEntity.ok(entities);
+    @Operation(summary = "Список объектов (page+size — страница; без них — весь список)")
+    public ResponseEntity<?> findAllObjectPlaceTrash(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String dir,
+            @RequestParam(required = false) Boolean includeExcluded) {
+        if (PageSupport.wantsPage(page, size)) {
+            return ResponseEntity.ok(objectPlaceTrashService.findAllObjectPlaceTrashPaged(
+                    page, size, q, sort, dir, includeExcluded));
+        }
+        return ResponseEntity.ok(objectPlaceTrashService.findAllObjectPlaceTrash());
     }
 
     @GetMapping("object-place-trash/{id}")
@@ -714,15 +843,22 @@ public class MainRouters {
         return ResponseEntity.ok(entity);
     }
 
+    @GetMapping("object-place-trash/{id}/characteristic-trash")
+    @Operation(summary = "Получить характеристики отходов объекта")
+    public ResponseEntity<List<CharacteristicTrash>> findCharacteristicTrashByObjectPlaceTrash(@PathVariable Long id) {
+        List<CharacteristicTrash> entities = characteristicTrashService.findCharacteristicTrashByObjectPlaceTrash(id);
+        return ResponseEntity.ok(entities);
+    }
+
     @GetMapping("object-place-trash/{id}/around-builds")
-    @Operation(summary = "Получить привязанные природоохранные сооружения (AroundBuild)")
+    @Operation(summary = "Получить привязанные окружающие здания (AroundBuild)")
     public ResponseEntity<List<AroundBuild>> findAroundBuildsByObjectPlaceTrash(@PathVariable Long id) {
         List<AroundBuild> entities = objectPlaceTrashService.findAroundBuildsByObjectPlaceTrash(id);
         return ResponseEntity.ok(entities);
     }
 
     @PostMapping("object-place-trash/{id}/around-builds")
-    @Operation(summary = "Добавить/привязать природоохранное сооружение к объекту")
+    @Operation(summary = "Добавить/привязать окружающее здание к объекту")
     public ResponseEntity<AroundBuild> addAroundBuildToObjectPlaceTrash(
             @PathVariable Long id,
             @Valid @RequestBody ObjectAroundBuildLinkRequest request) {
@@ -731,7 +867,7 @@ public class MainRouters {
     }
 
     @DeleteMapping("object-place-trash/{id}/around-builds/{aroundBuildId}")
-    @Operation(summary = "Удалить привязку природоохранного сооружения от объекта")
+    @Operation(summary = "Удалить привязку окружающего здания от объекта")
     public ResponseEntity<Void> deleteAroundBuildFromObjectPlaceTrash(
             @PathVariable Long id,
             @PathVariable Long aroundBuildId) {
@@ -740,14 +876,14 @@ public class MainRouters {
     }
 
     @GetMapping("object-place-trash/{id}/natual-save-buildings")
-    @Operation(summary = "Получить привязанные населенные пункты (NatualSaveBuilding)")
+    @Operation(summary = "Получить привязанные природоохранные здания (NatualSaveBuilding)")
     public ResponseEntity<List<NatualSaveBuilding>> findNatualSaveBuildsByObjectPlaceTrash(@PathVariable Long id) {
         List<NatualSaveBuilding> entities = objectPlaceTrashService.findNatualSaveBuildsByObjectPlaceTrash(id);
         return ResponseEntity.ok(entities);
     }
 
     @PostMapping("object-place-trash/{id}/natual-save-buildings")
-    @Operation(summary = "Добавить/привязать населенный пункт к объекту")
+    @Operation(summary = "Добавить/привязать природоохранное здание к объекту")
     public ResponseEntity<NatualSaveBuilding> addNatualSaveBuildToObjectPlaceTrash(
             @PathVariable Long id,
             @Valid @RequestBody ObjectNatualSaveBuildLinkRequest request) {
@@ -756,7 +892,7 @@ public class MainRouters {
     }
 
     @DeleteMapping("object-place-trash/{id}/natual-save-buildings/{natualSaveBuildId}")
-    @Operation(summary = "Удалить привязку населенного пункта от объекта")
+    @Operation(summary = "Удалить привязку природоохранного здания от объекта")
     public ResponseEntity<Void> deleteNatualSaveBuildFromObjectPlaceTrash(
             @PathVariable Long id,
             @PathVariable Long natualSaveBuildId) {

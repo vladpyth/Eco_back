@@ -20,7 +20,7 @@ public class CleanerBuilds {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_cleaner_build;
 
-    @Column(nullable = false, unique = true, length = 15)
+    @Column(nullable = false, length = 15)
     private String registr_number;
 
     @ManyToOne
@@ -28,16 +28,16 @@ public class CleanerBuilds {
     private ObjectPlaceTrash id_object_place_trash;
 
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 255)
     private String name_object;
 
     @Column()
-    private int start_use;
+    private Integer start_use;
 
     @Column()
-    private float all_square;
+    private Float all_square;
 
     @Column()
-    private float trash_count;
+    private Float trash_count;
 
 }

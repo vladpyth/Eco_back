@@ -1,6 +1,7 @@
 package com.example.eco_service.services;
 
 import com.example.eco_service.dto.request.*;
+import com.example.eco_service.dto.response.PageResponse;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -161,6 +162,12 @@ public class CRUDServices {
     public List<CharacteristicTrash> findAllCharacteristicTrash() {
         log.info("Fetching all CharacteristicTrash");
         return сharacteristicTrash.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CharacteristicTrash> findCharacteristicTrashByObjectPlaceTrash(Long objectId) {
+        log.info("Fetching CharacteristicTrash for objectPlaceTrash id={}", objectId);
+        return сharacteristicTrash.findAllByObjectPlaceTrashId(objectId);
     }
 
     // Получение по ID
@@ -1072,6 +1079,127 @@ public class CRUDServices {
         }
 
         typeTrash1Repository.deleteById(id);
+    }
+
+    // ==================== PAGED LISTS (page+size → PageResponse; как в РОИО) ====================
+
+    @Transactional(readOnly = true)
+    public PageResponse<District> findAllDistrictsPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(districtRepository.findAll(
+                PageSupport.textSearch(q, "id_district", sort, dir, "id_district", true),
+                PageSupport.pageable(page, size, "id_district")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<AroundBuild> findAllAroundBuildPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(aroundBuild.findAll(
+                PageSupport.textSearch(q, "id_around_build", sort, dir, "id_around_build", true),
+                PageSupport.pageable(page, size, "id_around_build")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<CharacteristicTrash> findAllCharacteristicTrashPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(сharacteristicTrash.findAll(
+                PageSupport.textSearch(q, "id_characteristic_trash", sort, dir, "id_characteristic_trash", true),
+                PageSupport.pageable(page, size, "id_characteristic_trash")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<Cities> findAllCitiesPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(cities.findAll(
+                PageSupport.textSearch(q, "id_cities", sort, dir, "name_cities", true),
+                PageSupport.pageable(page, size, "id_cities")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<ClassDanger> findAllClassDangerPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(classDangerRepository.findAll(
+                PageSupport.textSearch(q, "id_class_danger", sort, dir, "id_class_danger", true),
+                PageSupport.pageable(page, size, "id_class_danger")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<CleanerBuilds> findAllCleanerBuildsPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(cleanerBuildsRepository.findAll(
+                PageSupport.textSearch(q, "id_cleaner_build", sort, dir, "id_cleaner_build", true),
+                PageSupport.pageable(page, size, "id_cleaner_build")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GroupPlaceSave> findAllGroupPlaceSavePaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(groupPlaceSaveRepository.findAll(
+                PageSupport.textSearch(q, "id_group_place_save", sort, dir, "id_group_place_save", true),
+                PageSupport.pageable(page, size, "id_group_place_save")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<GruopsDegree> findAllGruopsDegreePaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(gruopsDegreeRepository.findAll(
+                PageSupport.textSearch(q, "id_gruops_degree", sort, dir, "id_gruops_degree", true),
+                PageSupport.pageable(page, size, "id_gruops_degree")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<LevelTrash> findAllLevelTrashPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(levelTrashRepository.findAll(
+                PageSupport.textSearch(q, "id_level_trash", sort, dir, "id_level_trash", true),
+                PageSupport.pageable(page, size, "id_level_trash")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<MagazinTrash> findAllMagazinTrashPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(magazinTrashRepository.findAll(
+                PageSupport.textSearch(q, "id_magazin_trash", sort, dir, "code_trash", true),
+                PageSupport.pageable(page, size, "id_magazin_trash")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<NameGroup> findAllNameGroupPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(nameGroupRepository.findAll(
+                PageSupport.textSearch(q, "id_mame_group", sort, dir, "id_mame_group", true),
+                PageSupport.pageable(page, size, "id_mame_group")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<NatualSaveBuilding> findAllNatualSaveBuildingPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(natualSaveBuildingRepository.findAll(
+                PageSupport.textSearch(q, "id_natual_save_build", sort, dir, "id_natual_save_build", true),
+                PageSupport.pageable(page, size, "id_natual_save_build")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<NumberPhone> findAllNumberPhonePaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(numberPhoneRepository.findAll(
+                PageSupport.textSearch(q, "id_phone_number", sort, dir, "number", true),
+                PageSupport.pageable(page, size, "id_phone_number")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<PhysicalState> findAllPhysicalStatePaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(physicalStateRepository.findAll(
+                PageSupport.textSearch(q, "id_state", sort, dir, "id_state", true),
+                PageSupport.pageable(page, size, "id_state")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<Region> findAllRegionPaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(regionRepository.findAll(
+                PageSupport.textSearch(q, "id_region", sort, dir, "name_region", true),
+                PageSupport.pageable(page, size, "id_region")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<StorageScheme> findAllStorageSchemePaged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(storageSchemeRepository.findAll(
+                PageSupport.textSearch(q, "id_storage_scheme", sort, dir, "id_storage_scheme", true),
+                PageSupport.pageable(page, size, "id_storage_scheme")));
+    }
+
+    @Transactional(readOnly = true)
+    public PageResponse<TypeTrash1> findAllTypeTrash1Paged(Integer page, Integer size, String q, String sort, String dir) {
+        return PageResponse.from(typeTrash1Repository.findAll(
+                PageSupport.textSearch(q, "id_type_trash1", sort, dir, "id_type_trash1", true),
+                PageSupport.pageable(page, size, "id_type_trash1")));
     }
 
 }

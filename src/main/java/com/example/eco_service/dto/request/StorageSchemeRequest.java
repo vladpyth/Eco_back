@@ -15,6 +15,6 @@ public class StorageSchemeRequest {
 
     @Schema(description = "Название схемы хранения", example = "Наземное складирование")
     @NotBlank(message = "nameStorageScheme обязателен")
-    @Size(max = 50, message = "Максимум 50 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String nameStorageScheme;
 }

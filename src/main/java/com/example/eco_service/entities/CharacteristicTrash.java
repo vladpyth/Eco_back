@@ -34,10 +34,10 @@ public class CharacteristicTrash {
     @JoinColumn(name = "id_state")
     private PhysicalState id_state;
 
-    @Column(length = 10)
-    private float weight_for_year;
+    @Column()
+    private Float weight_for_year;
 
-    @Column(length = 10)
-    private float square_for_year;
+    @Column()
+    private Float square_for_year;
 
 }

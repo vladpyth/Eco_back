@@ -40,6 +40,11 @@ public class ObjectPlaceTrash {
     @JoinColumn(name = "id_сities",nullable = true)
     private Cities id_cities;
 
+    /** Область из реестра (колонка «Область» в РХЗО.xlsx). */
+    @ManyToOne
+    @JoinColumn(name = "id_region", nullable = true)
+    private Region id_region;
+
     @ManyToOne
     @JoinColumn(name = "id_group_place_save",nullable = true)
     private GroupPlaceSave id_group_place_save ;
@@ -87,7 +92,7 @@ public class ObjectPlaceTrash {
     private String name_own;
 
     @Column()
-    private int start_use;
+    private Integer start_use;
 
     @Column()
     private String servise_life;
@@ -117,13 +122,13 @@ public class ObjectPlaceTrash {
     private Boolean confirmation_use;
 
     @Column()
-    private float square;
+    private Float square;
 
     @Column()
-    private float use_square;
+    private Float use_square;
 
     @Column()
-    private float trash_square;
+    private Float trash_square;
 
     @Column()
     private String project_power; //полная хуйня пересмотреть просили разделить на две части

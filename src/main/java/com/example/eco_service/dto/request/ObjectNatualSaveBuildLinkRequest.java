@@ -14,7 +14,7 @@ public class ObjectNatualSaveBuildLinkRequest {
     @Schema(description = "ID существующей записи NatualSaveBuilding", example = "1")
     private Long natualSaveBuildId;
 
-    @Schema(description = "Название для новой записи NatualSaveBuilding", example = "Населенный пункт")
-    @Size(max = 150, message = "Максимум 150 символов")
+    @Schema(description = "Название для новой записи NatualSaveBuilding", example = "Обваловка")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String name;
 }

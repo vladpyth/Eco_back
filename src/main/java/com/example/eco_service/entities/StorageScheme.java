@@ -19,6 +19,6 @@ public class StorageScheme {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_storage_scheme;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = 255)
     private String name_storage_scheme;
 }

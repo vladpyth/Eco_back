@@ -15,6 +15,6 @@ public class AroundBuildRequest {
 
     @Schema(description = "Название", example = "Зона А")
     @NotEmpty()
-    @Size(max = 150, message = "Максимум 150 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String name;
 }

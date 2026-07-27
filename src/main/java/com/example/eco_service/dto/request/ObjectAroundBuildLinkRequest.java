@@ -15,6 +15,6 @@ public class ObjectAroundBuildLinkRequest {
     private Long aroundBuildId;
 
     @Schema(description = "Название для новой записи AroundBuild", example = "Жилой дом")
-    @Size(max = 150, message = "Максимум 150 символов")
+    @Size(max = 255, message = "Максимум 255 символов")
     private String name;
 }
