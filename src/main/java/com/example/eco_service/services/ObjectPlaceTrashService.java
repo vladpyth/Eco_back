@@ -41,6 +41,11 @@ public class ObjectPlaceTrashService {
     public ObjectPlaceTrash createObjectPlaceTrash(ObjectPlaceTrashRequest request) {
         log.info("Creating ObjectPlaceTrash with registration: {}", request.getIdRegistration());
 
+        if (request.getIdRegistration() != null
+                && objectPlaceTrashRepository.existsByRegistrationNumber(request.getIdRegistration())) {
+            throw new RuntimeException("Регистрационный номер уже существует у другой записи");
+        }
+
         ObjectPlaceTrash entity = mapToEntity(request, new ObjectPlaceTrash());
 
         return objectPlaceTrashRepository.save(entity);
@@ -181,7 +186,12 @@ public class ObjectPlaceTrashService {
 
         // Обновляем только основные поля с проверкой существования связанных записей
         if (request.getIdRegistration() != null) {
-            entity.setId_registration(request.getIdRegistration());
+            String reg = request.getIdRegistration();
+            if (!reg.equals(entity.getId_registration())
+                    && objectPlaceTrashRepository.existsByRegistrationNumberAndIdNot(reg, id)) {
+                throw new RuntimeException("Регистрационный номер уже существует у другой записи");
+            }
+            entity.setId_registration(reg);
         }
 
         if (request.getRegister() != null) {

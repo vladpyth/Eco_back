@@ -178,7 +178,6 @@ public class ObjectPlaceTrashRequest {
 
         @Schema(description = "Номер телефона", example = "+375291234567")
         @NotBlank
-        @Pattern(regexp = "^\\+?[0-9\\-\\s]{10,17}$", message = "Неверный формат номера")
         private String number;
     }
 

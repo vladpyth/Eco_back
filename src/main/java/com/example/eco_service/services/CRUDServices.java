@@ -800,15 +800,16 @@ public class CRUDServices {
 
         Long oid = objectPlaceTrash.getId_object_place_trash();
         Long pid = savedPhone.getId_phone_number();
+        int urOb = request.getUr_ob() != null ? request.getUr_ob() : 0;
         numberPhoneCountRepository.findLink(oid, pid).ifPresentOrElse(
                 link -> {
-                    link.setUr_ob(request.getUr_ob());
+                    link.setUr_ob(urOb);
                     numberPhoneCountRepository.save(link);
                 },
                 () -> numberPhoneCountRepository.save(NumberPhoneCount.builder()
                         .id_object_place_trash(objectPlaceTrash)
                         .id_phone_number(savedPhone)
-                        .ur_ob(request.getUr_ob())
+                        .ur_ob(urOb)
                         .build())
         );
 
@@ -843,21 +844,28 @@ public class CRUDServices {
                     .orElseThrow(() -> new RuntimeException("ObjectPlaceTrash not found with id: " + request.getIdObjectPlaceTrash()));
             Long oid = newObjectPlaceTrash.getId_object_place_trash();
             Long phoneId = entity.getId_phone_number();
+            int urOb = request.getUr_ob() != null ? request.getUr_ob() : 0;
             numberPhoneCountRepository.findLink(oid, phoneId).ifPresentOrElse(
                     link -> {
-                        link.setUr_ob(request.getUr_ob());
+                        link.setUr_ob(urOb);
                         numberPhoneCountRepository.save(link);
                     },
                     () -> numberPhoneCountRepository.save(NumberPhoneCount.builder()
                             .id_object_place_trash(newObjectPlaceTrash)
                             .id_phone_number(entity)
-                            .ur_ob(request.getUr_ob())
+                            .ur_ob(urOb)
                             .build())
             );
         }
 
         if (request.getNumber() != null) {
-            entity.setNumber(request.getNumber());
+            String num = request.getNumber();
+            numberPhoneRepository.findByNumber(num).ifPresent(existing -> {
+                if (!existing.getId_phone_number().equals(id)) {
+                    throw new RuntimeException("Такой номер телефона уже есть в справочнике");
+                }
+            });
+            entity.setNumber(num);
         }
 
         return numberPhoneRepository.save(entity);
