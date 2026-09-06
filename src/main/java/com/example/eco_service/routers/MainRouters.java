@@ -3,6 +3,7 @@ import com.example.eco_service.dto.request.*;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
 import com.example.eco_service.dto.response.EchoResponse;
+import com.example.eco_service.dto.response.ObjectPlaceTrashListResponse;
 import com.example.eco_service.services.CRUDServices;
 import com.example.eco_service.services.ObjectPlaceTrashService;
 import com.example.eco_service.services.PageSupport;
@@ -813,27 +814,27 @@ public class MainRouters {
 
     @GetMapping("object-place-trash/with-pagination")
     @Operation(summary = "Получить все записи с пагинацией и фильтрацией")
-    public ResponseEntity<Page<ObjectPlaceTrash>> findAllObjectPlaceTrashWithPagination(
-            @PageableDefault(size = 20, sort = "id_object_place_trash", direction = Sort.Direction.DESC) Pageable pageable,
+    public ResponseEntity<Page<ObjectPlaceTrashListResponse>> findAllObjectPlaceTrashWithPagination(
+            @PageableDefault(size = 50, sort = "id_registration", direction = Sort.Direction.ASC) Pageable pageable,
             ObjectPlaceTrashService.ObjectPlaceTrashFilter filter) {
-        Page<ObjectPlaceTrash> page = objectPlaceTrashService.findAllObjectPlaceTrashWithPagination(pageable, filter);
+        Page<ObjectPlaceTrashListResponse> page =
+                objectPlaceTrashService.findAllObjectPlaceTrashWithPagination(pageable, filter);
         return ResponseEntity.ok(page);
     }
 
     @GetMapping("object-place-trash")
-    @Operation(summary = "Список объектов (page+size — страница; без них — весь список)")
+    @Operation(summary = "Список объектов с пагинацией (по умолчанию page=0, size=50)")
     public ResponseEntity<?> findAllObjectPlaceTrash(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String dir,
-            @RequestParam(required = false) Boolean includeExcluded) {
-        if (PageSupport.wantsPage(page, size)) {
-            return ResponseEntity.ok(objectPlaceTrashService.findAllObjectPlaceTrashPaged(
-                    page, size, q, sort, dir, includeExcluded));
-        }
-        return ResponseEntity.ok(objectPlaceTrashService.findAllObjectPlaceTrash());
+            @RequestParam(required = false) Boolean includeExcluded,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String wasteCode) {
+        return ResponseEntity.ok(objectPlaceTrashService.findAllObjectPlaceTrashPaged(
+                page, size, q, sort, dir, includeExcluded, location, wasteCode));
     }
 
     @GetMapping("object-place-trash/{id}")

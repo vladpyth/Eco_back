@@ -87,12 +87,9 @@ public class ReportService {
             double totalSquare = 0;
 
             for (ObjectPlaceTrash object : objectsInRegion) {
-                List<CharacteristicTrash> characteristics = characteristicTrashRepository.findAll()
-                        .stream()
-                        .filter(ct -> ct.getId_object_place_trash() != null &&
-                                ct.getId_object_place_trash().getId_object_place_trash()
-                                        .equals(object.getId_object_place_trash()))
-                        .collect(Collectors.toList());
+                List<CharacteristicTrash> characteristics =
+                        characteristicTrashRepository.findAllByObjectPlaceTrashId(
+                                object.getId_object_place_trash());
 
                 for (CharacteristicTrash ct : characteristics) {
                     totalWeight += ct.getWeight_for_year();
@@ -377,12 +374,9 @@ public class ReportService {
 
             // Суммируем характеристики
             for (ObjectPlaceTrash object : objectsInRegion) {
-                List<CharacteristicTrash> characteristics = characteristicTrashRepository.findAll()
-                        .stream()
-                        .filter(ct -> ct.getId_object_place_trash() != null &&
-                                ct.getId_object_place_trash().getId_object_place_trash()
-                                        .equals(object.getId_object_place_trash()))
-                        .collect(Collectors.toList());
+                List<CharacteristicTrash> characteristics =
+                        characteristicTrashRepository.findAllByObjectPlaceTrashId(
+                                object.getId_object_place_trash());
 
                 for (CharacteristicTrash ct : characteristics) {
                     totalWeight += ct.getWeight_for_year();
@@ -540,12 +534,9 @@ public class ReportService {
     }
 
     private List<String> getNameGroupsByObject(ObjectPlaceTrash object) {
-        List<CharacteristicTrash> characteristics = characteristicTrashRepository.findAll()
-                .stream()
-                .filter(ct -> ct.getId_object_place_trash() != null &&
-                        ct.getId_object_place_trash().getId_object_place_trash()
-                                .equals(object.getId_object_place_trash()))
-                .collect(Collectors.toList());
+        List<CharacteristicTrash> characteristics =
+                characteristicTrashRepository.findAllByObjectPlaceTrashId(
+                        object.getId_object_place_trash());
 
         List<String> nameGroups = new ArrayList<>();
 

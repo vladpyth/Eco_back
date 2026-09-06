@@ -3,6 +3,7 @@ package com.example.eco_service.services;
 import com.example.eco_service.dto.request.ObjectAroundBuildLinkRequest;
 import com.example.eco_service.dto.request.ObjectNatualSaveBuildLinkRequest;
 import com.example.eco_service.dto.request.ObjectPlaceTrashRequest;
+import com.example.eco_service.dto.response.ObjectPlaceTrashListResponse;
 import com.example.eco_service.dto.response.PageResponse;
 import com.example.eco_service.entities.*;
 import com.example.eco_service.repositories.*;
@@ -53,10 +54,12 @@ public class ObjectPlaceTrashService {
 
     // ==================== READ (с пагинацией и фильтрацией) ====================
     @Transactional(readOnly = true)
-    public Page<ObjectPlaceTrash> findAllObjectPlaceTrashWithPagination(Pageable pageable, ObjectPlaceTrashFilter filter) {
+    public Page<ObjectPlaceTrashListResponse> findAllObjectPlaceTrashWithPagination(
+            Pageable pageable, ObjectPlaceTrashFilter filter) {
         log.info("Fetching all ObjectPlaceTrash with pagination and filter");
         Specification<ObjectPlaceTrash> spec = buildFilterSpecification(filter);
-        return objectPlaceTrashRepository.findAll(spec, pageable);
+        return objectPlaceTrashRepository.findAll(spec, pageable)
+                .map(ObjectPlaceTrashListResponse::from);
     }
 
     // ==================== READ (без пагинации) ====================
@@ -69,8 +72,9 @@ public class ObjectPlaceTrashService {
     /** page+size+q+sort+dir — как в РОИО MagasinFactory.
      * includeExcluded=true — показывать исключённые (status=true); иначе скрывать их. */
     @Transactional(readOnly = true)
-    public PageResponse<ObjectPlaceTrash> findAllObjectPlaceTrashPaged(
-            Integer page, Integer size, String q, String sort, String dir, Boolean includeExcluded) {
+    public PageResponse<ObjectPlaceTrashListResponse> findAllObjectPlaceTrashPaged(
+            Integer page, Integer size, String q, String sort, String dir, Boolean includeExcluded,
+            String location, String wasteCode) {
         log.info("Fetching ObjectPlaceTrash paged page={} size={} q={} includeExcluded={}",
                 page, size, q, includeExcluded);
         Specification<ObjectPlaceTrash> spec =
@@ -79,9 +83,35 @@ public class ObjectPlaceTrashService {
             spec = spec.and((root, query, cb) ->
                     cb.or(cb.isNull(root.get("status")), cb.isFalse(root.get("status"))));
         }
-        return PageResponse.from(objectPlaceTrashRepository.findAll(
-                spec,
-                PageSupport.pageable(page, size, "id_object_place_trash")));
+        if (location != null && !location.isBlank()) {
+            String like = "%" + location.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> {
+                var directRegion = root.join("id_region", jakarta.persistence.criteria.JoinType.LEFT);
+                var city = root.join("id_cities", jakarta.persistence.criteria.JoinType.LEFT);
+                var cityRegion = city.join("id_region", jakarta.persistence.criteria.JoinType.LEFT);
+                var district = city.join("id_district", jakarta.persistence.criteria.JoinType.LEFT);
+                return cb.or(
+                        cb.like(cb.lower(directRegion.get("name_region")), like),
+                        cb.like(cb.lower(cityRegion.get("name_region")), like),
+                        cb.like(cb.lower(district.get("name_district")), like));
+            });
+        }
+        if (wasteCode != null && !wasteCode.isBlank()) {
+            String like = "%" + wasteCode.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> {
+                var objectIds = query.subquery(Long.class);
+                var characteristic = objectIds.from(CharacteristicTrash.class);
+                objectIds.select(characteristic.get("id_object_place_trash").get("id_object_place_trash"));
+                objectIds.where(cb.like(cb.lower(
+                        characteristic.get("id_magazin_trash").get("code_trash").as(String.class)), like));
+                return root.get("id_object_place_trash").in(objectIds);
+            });
+        }
+        Page<ObjectPlaceTrashListResponse> result = objectPlaceTrashRepository.findAll(
+                        spec,
+                        PageSupport.pageable(page, size, "id_object_place_trash"))
+                .map(ObjectPlaceTrashListResponse::from);
+        return PageResponse.from(result);
     }
 
     // ==================== READ by ID ====================

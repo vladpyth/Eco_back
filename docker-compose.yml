@@ -12,6 +12,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   app:
     build:
@@ -23,6 +24,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/eco_postgres
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: "12345"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx384m"
     depends_on:
       postgres:
         condition: service_healthy

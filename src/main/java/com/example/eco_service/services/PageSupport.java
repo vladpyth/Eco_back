@@ -75,15 +75,7 @@ public final class PageSupport {
         String field = resolveSortField(root, sortBy, defaultSortField != null ? defaultSortField : idAttribute);
         boolean asc = resolveAsc(sortBy, sortDir, defaultAsc);
         Path<?> path = root.get(field);
-        if ("id_registration".equals(field) && path.getJavaType() == String.class) {
-            var len = cb.length(root.get(field));
-            query.orderBy(
-                    asc ? cb.asc(len) : cb.desc(len),
-                    asc ? cb.asc(path) : cb.desc(path)
-            );
-        } else {
-            query.orderBy(asc ? cb.asc(path) : cb.desc(path));
-        }
+        query.orderBy(asc ? cb.asc(path) : cb.desc(path));
     }
 
     private static <T> Predicate buildBasicSearchPredicate(
